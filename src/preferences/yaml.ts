@@ -90,6 +90,7 @@ function parseScalar(raw: string, file: string, line: number): unknown {
   if (raw === "true") return true;
   if (raw === "false") return false;
   if (raw === "null") return null;
+  if (raw === "{}") return {};
   if (/^-?\d+$/.test(raw)) return Number.parseInt(raw, 10);
   if (/^-?\d+\.\d+$/.test(raw)) return Number.parseFloat(raw);
   const quoted = /^"(.*)"$/.exec(raw) ?? /^'(.*)'$/.exec(raw);

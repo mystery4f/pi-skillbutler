@@ -9,14 +9,19 @@ Skill preferences and visibility for pi: one curated skill list, a per-skill wri
 pi install npm:pi-skillbutler
 ```
 
-## What it does
+## Usage
 
-- Reads four keys per skill from one preference file: `hidden`, `weight`, `language`, `style`.
-- Rewrites the skill list the model sees each turn, plus one capped overview of what else exists.
-- Injects only the `SKILL.md` path when you type `$name` — never the body.
-- Completes `$` in the input box, translated where `pi-i18n` already translates `/skill:name`.
-- Reports read-only status to the model and keeps the human's controls in `/skill-pro`.
+Type `$name` anywhere in a prompt and the turn gets one line pointing at that skill's `SKILL.md`;
+the body is never pasted, so the file stays the only copy. A name that answers to nothing is
+reported once, with the names that do exist. Fenced code blocks are left alone.
 
+The `$` popup lists every skill: managed ones first by weight, then hidden ones (marked
+`[hidden]`), then skills pi loads from elsewhere (`[unmanaged]`). The description is the Chinese
+translation when `i18n.json` has one.
+
+`/skill-pro list`, `show <name>`, `why <name>`, `set <name> <key> <value>`, `unset <name> <key>`
+— `/skillbutler` is an alias. Writes only ever touch the user file. The model gets one read-only
+tool, `skillbutler_status`, so it can answer "why is this skill missing?" without guessing.
 ## Configuration
 
 User level: `~/.pi/agent/skill-pro.yml`. Project level: `.pi/skill-pro.yml`, which overrides the

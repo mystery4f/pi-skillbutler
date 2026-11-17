@@ -6,28 +6,43 @@
  * @author mystery4f <40482524+mystery4f@users.noreply.github.com>
  */
 import { describe, expect, it } from "vitest";
-import { SKILL_PRO_KEY } from "../../src/index.js";
+import { STATUS_KEY } from "../../src/index.js";
 import { createHarness } from "../support/extension-harness.js";
+import { makeProject } from "../support/temp.js";
 
 describe("extension entry", () => {
   it("registers session_start and session_shutdown", () => {
-    const harness = createHarness();
+    const project = makeProject();
+    const harness = createHarness({ options: project.options });
     expect(harness.handlers.get("session_start")).toHaveLength(1);
     expect(harness.handlers.get("session_shutdown")).toHaveLength(1);
     harness.dispose();
+    project.cleanup();
   });
 
   it("writes the footer chip on session start", async () => {
-    const harness = createHarness();
+    const project = makeProject();
+    const harness = createHarness({ options: project.options });
     await harness.fire("session_start");
-    expect(harness.statuses).toEqual([{ key: SKILL_PRO_KEY, text: SKILL_PRO_KEY }]);
+    expect(harness.statuses).toEqual([{ key: STATUS_KEY, text: STATUS_KEY }]);
     harness.dispose();
+    project.cleanup();
+  });
+
+  it("installs one command under both names", () => {
+    const project = makeProject();
+    const harness = createHarness({ options: project.options });
+    expect([...harness.commands.keys()].sort()).toEqual(["skill-pro", "skillbutler"]);
+    harness.dispose();
+    project.cleanup();
   });
 
   it("unregisters every handler on dispose", () => {
-    const harness = createHarness();
+    const project = makeProject();
+    const harness = createHarness({ options: project.options });
     harness.dispose();
     expect(harness.handlers.get("session_start")).toHaveLength(0);
     expect(harness.handlers.get("session_shutdown")).toHaveLength(0);
+    project.cleanup();
   });
 });

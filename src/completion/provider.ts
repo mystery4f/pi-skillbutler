@@ -60,8 +60,12 @@ export function createDollarProvider(
       }
       const line = lines[cursorLine] ?? "";
       const start = Math.max(0, cursorCol - prefix.length);
+      // The cursor can sit inside the word: consume the rest of the token, or the
+      // tail survives the replacement and the prompt reads `$alphaalpha`.
+      const tail = line.slice(cursorCol).match(/^[^\s$]*/u)?.[0] ?? "";
+      const end = cursorCol + tail.length;
       const next = [...lines];
-      next[cursorLine] = `${line.slice(0, start)}${item.value}${line.slice(cursorCol)}`;
+      next[cursorLine] = `${line.slice(0, start)}${item.value}${line.slice(end)}`;
       return { lines: next, cursorLine, cursorCol: start + item.value.length };
     },
     shouldTriggerFileCompletion(lines, cursorLine, cursorCol): boolean {

@@ -67,13 +67,26 @@ export async function readUsageEvents(file: string): Promise<UsageEvent[]> {
   return events;
 }
 
+/** What the log says about one skill: how often, and when it was last named. */
+export interface UsageSummary {
+  readonly count: number;
+  /** The newest `at` this skill carries, verbatim from the event. */
+  readonly lastAt: string;
+}
+
 /** Uses per skill, most-used first, name breaking ties. */
-export function summarizeUsage(events: readonly UsageEvent[]): Map<string, number> {
-  const counts = new Map<string, number>();
+export function summarizeUsage(events: readonly UsageEvent[]): Map<string, UsageSummary> {
+  const summaries = new Map<string, UsageSummary>();
   for (const event of events) {
-    counts.set(event.skill, (counts.get(event.skill) ?? 0) + 1);
+    const before = summaries.get(event.skill);
+    summaries.set(event.skill, {
+      count: (before?.count ?? 0) + 1,
+      lastAt: before === undefined || event.at > before.lastAt ? event.at : before.lastAt,
+    });
   }
   return new Map(
-    [...counts].sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0])),
+    [...summaries].sort(
+      (left, right) => right[1].count - left[1].count || left[0].localeCompare(right[0]),
+    ),
   );
 }

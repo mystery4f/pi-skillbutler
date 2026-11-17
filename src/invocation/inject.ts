@@ -26,6 +26,7 @@ export interface InvocationTarget {
 export function buildInvocationText(
   scan: InvocationScan,
   targets: readonly InvocationTarget[],
+  alreadyNamed: readonly string[],
   available: readonly string[],
 ): string | undefined {
   if (scan.known.length === 0 && scan.unknown.length === 0) return undefined;
@@ -35,6 +36,11 @@ export function buildInvocationText(
       "The user named these skills with `$name`. Read each file before acting on it, then follow it:",
     );
     for (const target of targets) lines.push(`- $${target.name} → ${target.file}`);
+  }
+  if (alreadyNamed.length > 0) {
+    if (lines.length > 0) lines.push("");
+    const named = alreadyNamed.map((name) => `$${name}`).join(", ");
+    lines.push(`Already named earlier this session, so the path is not repeated: ${named}.`);
   }
   if (scan.unknown.length > 0) {
     if (lines.length > 0) lines.push("");

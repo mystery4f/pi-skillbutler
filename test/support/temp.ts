@@ -4,7 +4,7 @@
  *
  * @author mystery4f <40482524+mystery4f@users.noreply.github.com>
  */
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -55,13 +55,15 @@ export interface TestProject {
 
 /** Build a self-contained tree: two roots, both preference files, cwd, stats and i18n. */
 export function makeProject(): TestProject {
-  const root = mkdtempSync(join(tmpdir(), "skillbutler-"));
+  // Windows CI hands out short names (`RUNNER~1`); resolve once so a path compared
+  // in a test is the same path the code reports.
+  const root = realpathSync(mkdtempSync(join(tmpdir(), "skillbutler-")));
   const userRoot = join(root, "home", ".agents", "skills");
   const agentRoot = join(root, "agent", "skills");
   const userPreferences = join(root, "agent", "skill-pro.yml");
   const projectPreferences = join(root, "project", ".pi", "skill-pro.yml");
   const translations = join(root, "agent", "i18n.json");
-  const stats = join(root, "agent", "skill-pro-stats.jsonl");
+  const stats = join(root, "agent", "skillbutler-stats.jsonl");
   const cwd = join(root, "project");
   mkdirSync(userRoot, { recursive: true });
   mkdirSync(agentRoot, { recursive: true });

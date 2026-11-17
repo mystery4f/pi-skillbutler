@@ -11,7 +11,7 @@ import { join, sep } from "node:path";
 export const USER_PREFERENCE_FILE = "skill-pro.yml";
 export const PROJECT_PREFERENCE_DIR = ".pi";
 /** Usage log file name, user level (ADR-0008); one JSON event per line. */
-export const USAGE_STATS_FILE = "skill-pro-stats.jsonl";
+export const USAGE_STATS_FILE = "skillbutler-stats.jsonl";
 
 export interface ManagedRootsOptions {
   /** Environment the agent directory is resolved from; defaults to `process.env`. */

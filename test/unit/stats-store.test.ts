@@ -83,11 +83,19 @@ describe("summarizeUsage", () => {
     ];
     expect(summarizeUsage(events)).toEqual(
       new Map([
-        ["beta", 2],
-        ["alpha", 1],
-        ["gamma", 1],
+        ["beta", { count: 2, lastAt: "c" }],
+        ["alpha", { count: 1, lastAt: "b" }],
+        ["gamma", { count: 1, lastAt: "d" }],
       ]),
     );
+  });
+
+  it("keeps the newest time even when the log is out of order", () => {
+    const usage = summarizeUsage([
+      { skill: "beta", at: "c" },
+      { skill: "beta", at: "a" },
+    ]);
+    expect(usage.get("beta")).toEqual({ count: 2, lastAt: "c" });
   });
 
   it("answers an empty log with an empty summary", () => {

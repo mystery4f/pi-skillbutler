@@ -114,6 +114,18 @@ describe("createDollarProvider", () => {
     expect(result.cursorCol).toBe("run $grill-with-docs".length);
   });
 
+  it("eats the rest of the token when the cursor sits inside it", () => {
+    const result = provider([]).applyCompletion(
+      ["run $grill-with-docs and more"],
+      0,
+      7,
+      { value: "$grill-with-docs", label: "$grill-with-docs [skill]" },
+      "$gr",
+    );
+    expect(result.lines).toEqual(["run $grill-with-docs and more"]);
+    expect(result.cursorCol).toBe("run $grill-with-docs".length);
+  });
+
   it("leaves a non-$ completion to pi", () => {
     const result = provider([]).applyCompletion(
       ["@sr"],

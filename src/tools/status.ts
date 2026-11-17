@@ -11,23 +11,33 @@ import type {
   ToolDefinition,
 } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { displayPath, projectPreferenceFile, userPreferenceFile } from "../paths.js";
+import {
+  displayPath,
+  projectPreferenceFile,
+  usageStatsFile,
+  userPreferenceFile,
+} from "../paths.js";
 import {
   loadPreferences,
   type PreferenceEntry,
   type PreferenceFileState,
 } from "../preferences/preferences.js";
 import { type Inventory, scanSkills } from "../skills/inventory.js";
+import { readUsageEvents, summarizeUsage, type UsageSummary } from "../stats/store.js";
 
 /** Tool name: the plugin prefix, then the one verb. */
 export const STATUS_TOOL = "skillbutler_status";
 
 /** Names listed in one answer before the list is clipped; the count stays exact. */
 export const INVENTORY_LINE_LIMIT = 120;
+/** Skill names the usage line prints before it clips; the totals stay exact. */
+export const USAGE_NAME_LIMIT = 5;
 
 export interface StatusToolDeps {
   readonly roots: readonly string[];
   readonly env?: NodeJS.ProcessEnv;
+  /** The usage log; defaults to the agent directory. */
+  readonly statsFile?: string;
 }
 
 export interface StatusReport {
@@ -61,6 +71,7 @@ export function statusDescription(deps: StatusToolDeps): string {
 
 export function createStatusTool(deps: StatusToolDeps): ToolDefinition {
   const env = deps.env ?? process.env;
+  const statsFile = deps.statsFile ?? usageStatsFile(env);
   return {
     name: STATUS_TOOL,
     label: "Skill inventory",
@@ -78,9 +89,16 @@ export function createStatusTool(deps: StatusToolDeps): ToolDefinition {
         user: userPreferenceFile(env),
         project: projectPreferenceFile(ctx.cwd),
       });
+      const usage = summarizeUsage(await readUsageEvents(statsFile));
       const report = params.name
-        ? describeOneSkill(inventory, loaded.preferences, loaded.files, params.name)
-        : describeInventory(inventory, loaded.preferences, loaded.files);
+        ? describeOneSkill(inventory, loaded.preferences, loaded.files, usage, params.name)
+        : describeInventory(
+            inventory,
+            loaded.preferences,
+            loaded.files,
+            usage,
+            displayPath(statsFile),
+          );
       return { content: [{ type: "text", text: report.text }], details: report.details };
     },
   };
@@ -90,6 +108,8 @@ export function describeInventory(
   inventory: Inventory,
   preferences: ReadonlyMap<string, PreferenceEntry>,
   files: readonly PreferenceFileState[],
+  usage: ReadonlyMap<string, UsageSummary>,
+  usageFile: string,
 ): StatusReport {
   const rows = inventory.skills.map((skill) => ({
     name: skill.name,
@@ -99,6 +119,7 @@ export function describeInventory(
     weight: preferences.get(skill.name)?.weight ?? 0,
     description: skill.description,
     shadowedSkillFile: skill.shadowedSkillFile && displayPath(skill.shadowedSkillFile),
+    namings: usage.get(skill.name)?.count ?? 0,
   }));
   const ranked = [...rows].sort(
     (left, right) => right.weight - left.weight || left.name.localeCompare(right.name),
@@ -117,6 +138,7 @@ export function describeInventory(
   lines.push(
     `inventory: ${rows.length} skills, ${rows.length - hidden.length} visible, ${hidden.length} hidden`,
   );
+  lines.push(usageLine(usage, rows.length));
   const shown = ranked.slice(0, INVENTORY_LINE_LIMIT);
   for (const row of shown) {
     lines.push(
@@ -133,6 +155,8 @@ export function describeInventory(
       settings: files.map((file) => ({ ...file, path: displayPath(file.path) })),
       counts: { total: rows.length, visible: rows.length - hidden.length, hidden: hidden.length },
       skills: rows,
+      usage: [...usage].map(([skill, summary]) => ({ skill, ...summary })),
+      usageFile,
     },
   };
 }
@@ -141,6 +165,7 @@ export function describeOneSkill(
   inventory: Inventory,
   preferences: ReadonlyMap<string, PreferenceEntry>,
   files: readonly PreferenceFileState[],
+  usage: ReadonlyMap<string, UsageSummary>,
   name: string,
 ): StatusReport {
   const skill = inventory.skills.find((record) => record.name === name);
@@ -163,6 +188,12 @@ export function describeOneSkill(
     if (entry.style !== undefined)
       lines.push(`  style: ${entry.style}${origin(entry, "style", files)}`);
   }
+  const used = usage.get(name);
+  lines.push(
+    used === undefined
+      ? "  usage: never named"
+      : `  usage: ${used.count} namings, last ${used.lastAt}`,
+  );
   return {
     text: lines.join("\n"),
     details: {
@@ -173,6 +204,7 @@ export function describeOneSkill(
       duplicateOf: skill.shadowedSkillFile && displayPath(skill.shadowedSkillFile),
       settings: entry ?? null,
       settingsFiles: files.map((file) => ({ ...file, path: displayPath(file.path) })),
+      usage: usage.get(name) ?? null,
     },
   };
 }
@@ -204,4 +236,28 @@ function missingSkill(inventory: Inventory, name: string): StatusReport {
     ].join("\n"),
     details: { name, known: names },
   };
+}
+
+/** One line answering "how often, and when last" for the whole log. */
+export function usageLine(usage: ReadonlyMap<string, UsageSummary>, managed?: number): string {
+  if (usage.size === 0) {
+    return managed === undefined
+      ? "usage: no namings yet"
+      : `usage: no namings yet; none of ${managed} managed skills has been named`;
+  }
+  const total = [...usage.values()].reduce((sum, summary) => sum + summary.count, 0);
+  const last = [...usage.values()].reduce(
+    (latest, summary) => (summary.lastAt > latest ? summary.lastAt : latest),
+    "",
+  );
+  const shown = [...usage].slice(0, USAGE_NAME_LIMIT);
+  const more = usage.size > shown.length ? `, and ${usage.size - shown.length} more` : "";
+  const skills = `${usage.size} skill${usage.size === 1 ? "" : "s"}`;
+  const names = shown.map(([skill, summary]) => `${skill} ${summary.count}`).join(", ");
+  const unused =
+    managed === undefined ? "" : `, ${Math.max(0, managed - usage.size)} of ${managed} never named`;
+  return [
+    `usage: ${total} namings across ${skills}`,
+    `(${names}${more}), last ${last}${unused}`,
+  ].join(" ");
 }

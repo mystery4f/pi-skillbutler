@@ -9,22 +9,31 @@ import { buildInvocationText, HINT_NAME_LIMIT } from "../../src/invocation/injec
 
 describe("buildInvocationText", () => {
   it("adds nothing when the prompt names nothing", () => {
-    expect(buildInvocationText({ known: [], unknown: [] }, [], ["retro"])).toBeUndefined();
+    expect(buildInvocationText({ known: [], unknown: [] }, [], [], ["retro"])).toBeUndefined();
   });
 
   it("points at the file instead of pasting the skill", () => {
     const text = buildInvocationText(
       { known: ["retro"], unknown: [] },
       [{ name: "retro", file: "/skills/retro/SKILL.md" }],
+      [],
       ["retro"],
     );
     expect(text).toContain("Read each file before acting on it");
     expect(text).toContain("- $retro → /skills/retro/SKILL.md");
   });
 
+  it("reports a second naming instead of repeating the path", () => {
+    const text = buildInvocationText({ known: ["retro"], unknown: [] }, [], ["retro"], ["retro"]);
+    expect(text).toContain("Already named earlier this session");
+    expect(text).toContain("$retro");
+    expect(text).not.toContain("SKILL.md");
+  });
+
   it("says so when a name answers to nothing, and offers what exists", () => {
     const text = buildInvocationText(
       { known: [], unknown: ["nope"] },
+      [],
       [],
       ["retro", "grill-with-docs"],
     );
@@ -34,7 +43,7 @@ describe("buildInvocationText", () => {
 
   it("stops listing names at the hint limit and counts the rest", () => {
     const names = Array.from({ length: HINT_NAME_LIMIT + 5 }, (_, at) => `skill-${at}`);
-    const text = buildInvocationText({ known: [], unknown: ["nope"] }, [], names) ?? "";
+    const text = buildInvocationText({ known: [], unknown: ["nope"] }, [], [], names) ?? "";
     expect(text).toContain(`(${names.length} in total)`);
   });
 });

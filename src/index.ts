@@ -91,6 +91,8 @@ export function createExtension(
   );
   const statsFile = options.statsFile ?? usageStatsFile(env);
   let view: SessionView | undefined;
+  /** Skills already pointed at this session: a second naming says so, not the path. */
+  let named = new Set<string>();
 
   const reload = async (): Promise<SessionView> => {
     const inventory = await scanSkills(roots);
@@ -116,7 +118,7 @@ export function createExtension(
       ? []
       : buildCompletionEntries(view.inventory, view.preferences.preferences, view.hostSkills);
 
-  pi.registerTool(createStatusTool({ roots, env }));
+  pi.registerTool(createStatusTool({ roots, env, statsFile }));
   const command = createCommandOptions({
     view: () => view,
     reload,
@@ -132,6 +134,7 @@ export function createExtension(
   const disposers: Array<() => void> = [];
   disposers.push(
     pi.on("session_start", async (_event, ctx) => {
+      named = new Set();
       await reload();
       const hostSkills = parseHostSkills(ctx.getSystemPrompt());
       if (hostSkills.length > 0 && view !== undefined) view = { ...view, hostSkills };
@@ -158,12 +161,15 @@ export function createExtension(
       }
       const scan = scanInvocations(event.prompt, (name) => resolves(current, name));
       applyOverlay(event.systemPromptOptions, current, scan.known, options.overviewLimit);
-      const targets = scan.known.flatMap((name) => {
+      const fresh = scan.known.filter((name) => !named.has(name));
+      const repeated = scan.known.filter((name) => named.has(name));
+      const targets = fresh.flatMap((name) => {
         const file = fileOf(current, name);
         return file === undefined ? [] : [{ name, file }];
       });
-      for (const target of targets) await record(statsFile, target.name);
-      const text = buildInvocationText(scan, targets, namesOf(current));
+      for (const name of scan.known) await record(statsFile, name);
+      for (const target of targets) named.add(target.name);
+      const text = buildInvocationText(scan, targets, repeated, namesOf(current));
       if (text === undefined) return;
       return {
         message: { customType: INVOCATION_CUSTOM_TYPE, content: text, display: false },
@@ -175,6 +181,7 @@ export function createExtension(
       // The chip summarizes a session; the next one starts without it.
       ctx.ui.setStatus(STATUS_KEY, undefined);
       view = undefined;
+      named = new Set();
     }),
   );
 

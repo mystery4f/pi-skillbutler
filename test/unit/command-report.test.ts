@@ -5,7 +5,7 @@
  *
  * @author mystery4f <40482524+mystery4f@users.noreply.github.com>
  */
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { createHarness } from "../support/extension-harness.js";
 import { makeProject } from "../support/temp.js";
@@ -101,6 +101,38 @@ describe("/skill-pro through the registered command", () => {
     expect(await complete("sh")).toEqual(["show"]);
     expect(await complete("set al")).toEqual(["alpha"]);
     expect(await complete("set alpha ")).toEqual(["hidden", "weight", "language", "style"]);
+    harness.dispose();
+    project.cleanup();
+  });
+});
+
+describe("/skill-pro reset", () => {
+  it("clears the usage log and says how many namings it dropped", async () => {
+    const project = makeProject();
+    project.skill("alpha");
+    await writeFile(
+      project.stats,
+      [
+        '{"skill":"alpha","at":"2026-11-17T01:00:00.000Z","via":"dollar"}',
+        '{"skill":"alpha","at":"2026-11-17T02:00:00.000Z","via":"dollar"}',
+        "",
+      ].join("\n"),
+      "utf8",
+    );
+    const harness = createHarness({ options: project.options });
+    await harness.runCommand("skill-pro", "reset");
+    expect(harness.notifications.at(-1)?.message).toContain("cleared 2 namings");
+    expect(await readFile(project.stats, "utf8")).toBe("");
+    harness.dispose();
+    project.cleanup();
+  });
+
+  it("offers no argument completion after reset", async () => {
+    const project = makeProject();
+    project.skill("alpha");
+    const harness = createHarness({ options: project.options });
+    const command = harness.commands.get("skill-pro");
+    expect(await command?.getArgumentCompletions?.("reset ")).toEqual([]);
     harness.dispose();
     project.cleanup();
   });

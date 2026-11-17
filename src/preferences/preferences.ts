@@ -49,9 +49,8 @@ export function parsePreferences(source: string, file: string): PreferenceMap {
   }
   const skills = parsed.skills;
   if (skills === undefined || skills === null) return new Map();
-  if (typeof skills !== "object" || Array.isArray(skills)) {
+  if (typeof skills !== "object" || Array.isArray(skills))
     throw new PreferenceError(`${file}: "skills" must be a map of skill name to its settings`);
-  }
   const entries = new Map<string, PreferenceEntry>();
   for (const [name, raw] of Object.entries(skills as ParsedConfig)) {
     if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
@@ -79,21 +78,18 @@ function parseEntry(name: string, raw: ParsedConfig, file: string): PreferenceEn
         hidden = value;
         break;
       case "weight":
-        if (typeof value !== "number" || !Number.isFinite(value)) {
+        if (typeof value !== "number" || !Number.isFinite(value))
           throw invalidValue(file, name, key, value, "must be a number");
-        }
         weight = value;
         break;
       case "language":
-        if (typeof value !== "string" || value.trim().length === 0) {
+        if (typeof value !== "string" || value.trim().length === 0)
           throw invalidValue(file, name, key, value, "must be a non-empty string such as en or zh");
-        }
         language = value;
         break;
       case "style":
-        if (typeof value !== "string" || value.trim().length === 0) {
+        if (typeof value !== "string" || value.trim().length === 0)
           throw invalidValue(file, name, key, value, "must be a non-empty string");
-        }
         style = value;
         break;
       default:

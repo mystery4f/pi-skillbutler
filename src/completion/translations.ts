@@ -62,9 +62,8 @@ function readCommands(source: string): ReadonlyMap<string, string> {
     if (record.version !== SUPPORTED_VERSION) return new Map();
     if (typeof record.commands !== "object" || record.commands === null) return new Map();
     const commands = new Map<string, string>();
-    for (const [key, value] of Object.entries(record.commands as Record<string, unknown>)) {
+    for (const [key, value] of Object.entries(record.commands as Record<string, unknown>))
       if (typeof value === "string" && value.trim().length > 0) commands.set(key, value);
-    }
     return commands;
   } catch {
     return new Map();

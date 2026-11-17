@@ -19,7 +19,7 @@ The `$` popup lists every skill: managed ones first by weight, then hidden ones 
 `[hidden]`), then skills pi loads from elsewhere (`[unmanaged]`). The description is the Chinese
 translation when `i18n.json` has one.
 
-`/skill-pro list`, `show <name>`, `why <name>`, `set <name> <key> <value>`, `unset <name> <key>`
+`/skill-pro list`, `show <name>`, `why <name>`, `set <name> <key> <value>`, `unset <name> <key>`, `reset`
 — `/skillbutler` is an alias. Writes only ever touch the user file. The model gets one read-only
 tool, `skillbutler_status`, so it can answer "why is this skill missing?" without guessing.
 ## Configuration

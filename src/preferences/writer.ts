@@ -35,15 +35,13 @@ export function parseSettingValue(
       throw invalidValue(file, name, key, raw, "must be true or false");
     case "weight": {
       const value = Number(raw);
-      if (raw.length === 0 || !Number.isFinite(value)) {
+      if (raw.length === 0 || !Number.isFinite(value))
         throw invalidValue(file, name, key, raw, "must be a number");
-      }
       return value;
     }
     default:
-      if (raw.trim().length === 0) {
+      if (raw.trim().length === 0)
         throw invalidValue(file, name, key, raw, "must be a non-empty string");
-      }
       return raw;
   }
 }
@@ -71,9 +69,8 @@ export function withoutSetting(
 ): string {
   const entries = readEntries(source, file);
   const before = entries.get(name);
-  if (before === undefined || before[key] === undefined) {
+  if (before === undefined || before[key] === undefined)
     throw new PreferenceError(`${file}: skill "${name}" has no "${key}" setting to remove`);
-  }
   const next: PreferenceEntry = { ...before };
   delete next[key];
   if (SKILL_KEYS.every((setting) => next[setting] === undefined)) entries.delete(name);

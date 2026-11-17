@@ -11,7 +11,7 @@ import type { InvocationScan } from "./matcher.js";
 /** Custom message type, so a transcript can tell these messages apart. */
 export const INVOCATION_CUSTOM_TYPE = "skillbutler-invocation";
 /** How many names a "nothing answers to that" hint offers before it stops counting. */
-export const HINT_NAME_LIMIT = 40;
+export const HINT_NAME_LIMIT = 60;
 
 export interface InvocationTarget {
   readonly name: string;

@@ -10,6 +10,7 @@ import { dirname } from "node:path";
 import type { RegisteredCommand } from "@earendil-works/pi-coding-agent";
 import type { AutocompleteItem } from "@earendil-works/pi-tui";
 import { displayPath } from "../paths.js";
+import { withPreferencesLock } from "../preferences/lock.js";
 import {
   type PreferenceEntry,
   type PreferenceMap,
@@ -19,6 +20,7 @@ import {
 import { parseSettingValue, withoutSetting, withSetting } from "../preferences/writer.js";
 import type { SessionView } from "../session.js";
 import type { SkillRecord } from "../skills/inventory.js";
+import { readUsageEvents } from "../stats/store.js";
 
 /** Command names: the spec's `/skill-pro`, plus the package name as an alias. */
 export const COMMAND_NAME = "skill-pro";
@@ -28,7 +30,7 @@ export const REPORT_CUSTOM_TYPE = "skillbutler-report";
 /** Marker for a skill the prompt never shows. */
 const HIDDEN_MARK = "[hidden]";
 /** How many names a "nothing by that name" message offers. */
-const NAME_LIMIT = 40;
+const NAME_LIMIT = 60;
 
 export interface CommandIo {
   notify(message: string, level?: "info" | "warning" | "error"): void;
@@ -43,6 +45,8 @@ export interface CommandDeps {
   readonly env?: NodeJS.ProcessEnv;
   /** The two preference files this session reads and writes. */
   readonly files: { readonly user: string; readonly project: string };
+  /** The usage log this session appends to and `reset` truncates. */
+  readonly statsFile: string;
   /** Deliver a multi-line report into the transcript instead of the footer. */
   send(message: { customType: string; content: string; display: boolean }): void;
 }
@@ -55,11 +59,12 @@ export const SUBCOMMANDS: readonly AutocompleteItem[] = [
   { value: "set", label: "set", description: "set one setting in the user file" },
   { value: "unset", label: "unset", description: "remove one setting from the user file" },
   { value: "why", label: "why", description: "why a skill is or is not offered" },
+  { value: "reset", label: "reset", description: "clear the usage log" },
 ];
 
 export function createCommandOptions(deps: CommandDeps): CommandOptions {
   return {
-    description: "Inspect and change skill preferences: list, show, set, unset, why",
+    description: "Inspect and change skill preferences: list, show, set, unset, why, reset",
     getArgumentCompletions: (prefix) => completeArguments(prefix, deps),
     handler: async (args, ctx) => {
       const io: CommandIo = {
@@ -99,12 +104,13 @@ export async function runCommand(
         const name = requireName(rest[0], "set");
         const key = requireKey(rest[1]);
         const raw = rest.slice(2).join(" ");
-        if (raw.length === 0) {
+        if (raw.length === 0)
           throw new Error(`set needs a value: /skill-pro set ${name} ${key} <value>`);
-        }
         const value = parseSettingValue(key, raw, userFile, name);
-        const next = withSetting(await readSource(userFile), userFile, name, key, value);
-        await writeUserFile(userFile, next);
+        await withPreferencesLock(userFile, async () => {
+          const next = withSetting(await readSource(userFile), userFile, name, key, value);
+          await writeUserFile(userFile, next);
+        });
         await deps.reload();
         io.notify(`skill-pro: ${name}.${key} = ${String(value)} in ${displayPath(userFile)}`);
         return;
@@ -112,15 +118,25 @@ export async function runCommand(
       case "unset": {
         const name = requireName(rest[0], "unset");
         const key = requireKey(rest[1]);
-        const next = withoutSetting(await readSource(userFile), userFile, name, key);
-        await writeUserFile(userFile, next);
+        await withPreferencesLock(userFile, async () => {
+          const next = withoutSetting(await readSource(userFile), userFile, name, key);
+          await writeUserFile(userFile, next);
+        });
         await deps.reload();
         io.notify(`skill-pro: removed ${name}.${key} from ${displayPath(userFile)}`);
         return;
       }
+      case "reset": {
+        const events = await readUsageEvents(deps.statsFile);
+        await writeFile(deps.statsFile, "", "utf8");
+        io.notify(
+          `skill-pro: cleared ${events.length} namings from ${displayPath(deps.statsFile)}`,
+        );
+        return;
+      }
       default:
         io.notify(
-          `skill-pro: unknown subcommand "${subcommand}"; try list, show, set, unset, why`,
+          `skill-pro: unknown subcommand "${subcommand}"; try list, show, set, unset, why, reset`,
           "error",
         );
     }
@@ -141,6 +157,7 @@ async function completeArguments(prefix: string, deps: CommandDeps): Promise<Aut
       .filter((name) => name.startsWith(rest))
       .map((name) => ({ value: name, label: name }));
   }
+  if (subcommand === "reset") return [];
   if (rest.includes(" ")) return [];
   return namesOf(deps.view())
     .filter((name) => name.startsWith(rest))
@@ -201,9 +218,8 @@ function renderShow(view: SessionView, name: string, userFile: string): string {
   const skill = view.inventory.skills.find((record) => record.name === name);
   const entry = view.preferences.preferences.get(name);
   const host = view.hostSkills.find((record) => record.name === name);
-  if (skill === undefined && entry === undefined && host === undefined) {
+  if (skill === undefined && entry === undefined && host === undefined)
     return `${name}: nothing by that name. ${knownNames(view)}`;
-  }
   const lines = [`${name}${entry?.hidden === true ? `  ${HIDDEN_MARK}` : ""}`];
   if (skill !== undefined) {
     lines.push(`  file:        ${displayPath(skill.skillFile)}`);
@@ -228,9 +244,8 @@ function renderWhy(view: SessionView, name: string, userFile: string, projectFil
   const skill = view.inventory.skills.find((record) => record.name === name);
   const entry = view.preferences.preferences.get(name);
   const host = view.hostSkills.find((record) => record.name === name);
-  if (skill === undefined && entry === undefined && host === undefined) {
+  if (skill === undefined && entry === undefined && host === undefined)
     return `${name}: nothing by that name. ${knownNames(view)}`;
-  }
   const lines: string[] = [];
   if (entry?.hidden === true) {
     lines.push(
@@ -293,9 +308,8 @@ function knownNames(view: SessionView): string {
 }
 
 function requireName(value: string | undefined, subcommand: string): string {
-  if (value === undefined || value.length === 0) {
+  if (value === undefined || value.length === 0)
     throw new Error(`${subcommand} needs a skill name: /skill-pro ${subcommand} <name>`);
-  }
   return value;
 }
 

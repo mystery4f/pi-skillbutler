@@ -124,6 +124,7 @@ export function createExtension(
     reload,
     env,
     files: preferenceFiles,
+    statsFile,
     send: (message) => {
       void pi.sendMessage(message);
     },

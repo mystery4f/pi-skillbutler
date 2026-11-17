@@ -37,9 +37,8 @@ export function parseUsageLine(line: string): UsageEvent | undefined {
   const record = value as { skill?: unknown; at?: unknown; via?: unknown };
   if (typeof record.skill !== "string" || record.skill.length === 0) return undefined;
   if (typeof record.at !== "string" || record.at.length === 0) return undefined;
-  if (typeof record.via === "string" && record.via.length > 0) {
+  if (typeof record.via === "string" && record.via.length > 0)
     return { skill: record.skill, at: record.at, via: record.via };
-  }
   return { skill: record.skill, at: record.at };
 }
 

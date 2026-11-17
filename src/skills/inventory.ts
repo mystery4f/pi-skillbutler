@@ -53,9 +53,8 @@ export async function scanSkills(roots: readonly string[]): Promise<Inventory> {
       const name = frontmatter.name ?? directory;
       const existing = byName.get(name);
       if (existing) {
-        if (existing.shadowedSkillFile === undefined) {
+        if (existing.shadowedSkillFile === undefined)
           byName.set(name, { ...existing, shadowedSkillFile: skillFile });
-        }
         continue;
       }
       byName.set(name, {

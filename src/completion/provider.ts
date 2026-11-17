@@ -15,7 +15,7 @@ import { type CompletionEntry, entryMarkers, rankByQuery } from "./entries.js";
 /** The token the popup answers: `$` plus every non-space, non-`$` character before the cursor. */
 const DOLLAR_PREFIX = /(\$[^\s$]*)$/u;
 /** Most items the popup shows at once; the rest are noise on a small terminal. */
-const ITEM_LIMIT = 50;
+const ITEM_LIMIT = 200;
 
 /** The `$…` token that ends at the cursor, or undefined when the cursor is elsewhere. */
 export function extractDollarPrefix(textBeforeCursor: string): string | undefined {
@@ -46,18 +46,16 @@ export function createDollarProvider(
     ): Promise<AutocompleteSuggestions | null> {
       const line = lines[cursorLine] ?? "";
       const prefix = extractDollarPrefix(line.slice(0, cursorCol));
-      if (prefix === undefined) {
+      if (prefix === undefined)
         return current.getSuggestions(lines, cursorLine, cursorCol, options);
-      }
       await deps.reloadTranslations();
       const items = suggest(deps, prefix.slice(1));
       if (items.length === 0) return current.getSuggestions(lines, cursorLine, cursorCol, options);
       return { items, prefix };
     },
     applyCompletion(lines, cursorLine, cursorCol, item, prefix) {
-      if (!prefix.startsWith("$")) {
+      if (!prefix.startsWith("$"))
         return current.applyCompletion(lines, cursorLine, cursorCol, item, prefix);
-      }
       const line = lines[cursorLine] ?? "";
       const start = Math.max(0, cursorCol - prefix.length);
       // The cursor can sit inside the word: consume the rest of the token, or the

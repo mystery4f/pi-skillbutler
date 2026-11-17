@@ -24,13 +24,11 @@ export function parseConfigYaml(source: string, file: string): ParsedConfig {
     const number = index + 1;
     if (raw.trim().length === 0) return;
     if (/^\s*#/.test(raw)) return;
-    if (raw.includes("\t")) {
+    if (raw.includes("\t"))
       throw new PreferenceError(`${file}:${number}: tabs are not allowed, indent with two spaces`);
-    }
     const indent = raw.length - raw.trimStart().length;
-    if (indent % 2 !== 0) {
+    if (indent % 2 !== 0)
       throw new PreferenceError(`${file}:${number}: indentation must be a multiple of two spaces`);
-    }
     lines.push({ indent, text: raw.trim(), number });
   });
   if (lines.length === 0) return {};
@@ -58,9 +56,8 @@ export function parseConfigYaml(source: string, file: string): ParsedConfig {
           `${file}:${line.number}: a setting needs a name before the colon`,
         );
       }
-      if (Object.hasOwn(map, key)) {
+      if (Object.hasOwn(map, key))
         throw new PreferenceError(`${file}:${line.number}: "${key}" is set twice`);
-      }
       const rest = line.text.slice(colon + 1).trim();
       at += 1;
       if (rest.length === 0) {
@@ -80,9 +77,8 @@ export function parseConfigYaml(source: string, file: string): ParsedConfig {
   };
   const parsed = parseMap(0, "the file");
   const trailing = lines[at];
-  if (trailing) {
+  if (trailing)
     throw new PreferenceError(`${file}:${trailing.number}: unexpected line "${trailing.text}"`);
-  }
   return parsed;
 }
 
@@ -95,8 +91,7 @@ function parseScalar(raw: string, file: string, line: number): unknown {
   if (/^-?\d+\.\d+$/.test(raw)) return Number.parseFloat(raw);
   const quoted = /^"(.*)"$/.exec(raw) ?? /^'(.*)'$/.exec(raw);
   if (quoted) return quoted[1] ?? "";
-  if (/^["']/.test(raw)) {
+  if (/^["']/.test(raw))
     throw new PreferenceError(`${file}:${line}: a quote is opened and never closed`);
-  }
   return raw;
 }

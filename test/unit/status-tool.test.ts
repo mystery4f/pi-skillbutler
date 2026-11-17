@@ -4,7 +4,10 @@
  *
  * @author mystery4f <40482524+mystery4f@users.noreply.github.com>
  */
+import { mkdir } from "node:fs/promises";
+import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { USAGE_STATS_FILE } from "../../src/paths.js";
 import { STATUS_TOOL } from "../../src/tools/status.js";
 import { createHarness, type Harness } from "../support/extension-harness.js";
 import { removeDir, tempDir, writeFileIn } from "../support/temp.js";
@@ -75,3 +78,25 @@ function firstText(result: { content: readonly { type: string; text?: string }[]
   const block = result.content.find((candidate) => candidate.type === "text");
   return block?.text ?? "";
 }
+
+describe("skillbutler_status when the usage log cannot be read", () => {
+  it("still answers the inventory and reports the log as unavailable", async () => {
+    const brokenRoot = await tempDir("skill-pro-root-broken-");
+    const brokenAgent = await tempDir("skill-pro-agent-broken-");
+    await writeFileIn(brokenRoot, "gamma/SKILL.md", "---\nname: gamma\n---\n");
+    await mkdir(join(brokenAgent, USAGE_STATS_FILE), { recursive: true });
+    const broken = createHarness({
+      options: { roots: [brokenRoot], env: { PI_CODING_AGENT_DIR: brokenAgent } },
+    });
+
+    const result = await broken.callTool(STATUS_TOOL, {}, brokenRoot);
+    const text = firstText(result);
+
+    expect(text).toContain("1 skills");
+    expect(text).toMatch(/usage: unavailable \(/u);
+    expect((result.details as { usageError?: string }).usageError?.length).toBeGreaterThan(0);
+    broken.dispose();
+    await removeDir(brokenRoot);
+    await removeDir(brokenAgent);
+  });
+});

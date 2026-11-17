@@ -89,15 +89,29 @@ export function createStatusTool(deps: StatusToolDeps): ToolDefinition {
         user: userPreferenceFile(env),
         project: projectPreferenceFile(ctx.cwd),
       });
-      const usage = summarizeUsage(await readUsageEvents(statsFile));
+      let usage: Map<string, UsageSummary> = new Map();
+      let usageError: string | undefined;
+      try {
+        usage = summarizeUsage(await readUsageEvents(statsFile));
+      } catch (error) {
+        usageError = (error as Error).message;
+      }
       const report = params.name
-        ? describeOneSkill(inventory, loaded.preferences, loaded.files, usage, params.name)
+        ? describeOneSkill(
+            inventory,
+            loaded.preferences,
+            loaded.files,
+            usage,
+            params.name,
+            usageError,
+          )
         : describeInventory(
             inventory,
             loaded.preferences,
             loaded.files,
             usage,
             displayPath(statsFile),
+            usageError,
           );
       return { content: [{ type: "text", text: report.text }], details: report.details };
     },
@@ -110,6 +124,7 @@ export function describeInventory(
   files: readonly PreferenceFileState[],
   usage: ReadonlyMap<string, UsageSummary>,
   usageFile: string,
+  usageError?: string,
 ): StatusReport {
   const rows = inventory.skills.map((skill) => ({
     name: skill.name,
@@ -132,22 +147,20 @@ export function describeInventory(
     );
   }
   lines.push("settings");
-  for (const file of files) {
+  for (const file of files)
     lines.push(`  ${displayPath(file.path)}  ${file.present ? "present" : "missing"}`);
-  }
   lines.push(
     `inventory: ${rows.length} skills, ${rows.length - hidden.length} visible, ${hidden.length} hidden`,
   );
-  lines.push(usageLine(usage, rows.length));
+  lines.push(usageError ? `usage: unavailable (${usageError})` : usageLine(usage, rows.length));
   const shown = ranked.slice(0, INVENTORY_LINE_LIMIT);
   for (const row of shown) {
     lines.push(
       `  ${row.name}${row.hidden ? "  [hidden]" : ""}  weight ${row.weight}  ${row.skillFile}${row.shadowedSkillFile ? `  (also ${row.shadowedSkillFile})` : ""}`,
     );
   }
-  if (ranked.length > shown.length) {
+  if (ranked.length > shown.length)
     lines.push(`  … ${ranked.length - shown.length} more not listed; pass a name to inspect one`);
-  }
   return {
     text: lines.join("\n"),
     details: {
@@ -157,6 +170,7 @@ export function describeInventory(
       skills: rows,
       usage: [...usage].map(([skill, summary]) => ({ skill, ...summary })),
       usageFile,
+      usageError,
     },
   };
 }
@@ -167,6 +181,7 @@ export function describeOneSkill(
   files: readonly PreferenceFileState[],
   usage: ReadonlyMap<string, UsageSummary>,
   name: string,
+  usageError?: string,
 ): StatusReport {
   const skill = inventory.skills.find((record) => record.name === name);
   if (!skill) return missingSkill(inventory, name);
@@ -175,9 +190,8 @@ export function describeOneSkill(
   lines.push(`  file: ${displayPath(skill.skillFile)}`);
   lines.push(`  root: ${displayPath(skill.root)}`);
   if (skill.description) lines.push(`  description: ${skill.description}`);
-  if (skill.shadowedSkillFile) {
+  if (skill.shadowedSkillFile)
     lines.push(`  duplicate: ${displayPath(skill.shadowedSkillFile)} is shadowed by this one`);
-  }
   if (!entry) {
     lines.push("  settings: none; the skill is visible and orders as weight 0");
   } else {
@@ -188,12 +202,11 @@ export function describeOneSkill(
     if (entry.style !== undefined)
       lines.push(`  style: ${entry.style}${origin(entry, "style", files)}`);
   }
-  const used = usage.get(name);
-  lines.push(
-    used === undefined
-      ? "  usage: never named"
-      : `  usage: ${used.count} namings, last ${used.lastAt}`,
-  );
+  const used = usageError === undefined ? usage.get(name) : undefined;
+  let usageText = "  usage: never named";
+  if (usageError !== undefined) usageText = `  usage: unavailable (${usageError})`;
+  else if (used !== undefined) usageText = `  usage: ${used.count} namings, last ${used.lastAt}`;
+  lines.push(usageText);
   return {
     text: lines.join("\n"),
     details: {

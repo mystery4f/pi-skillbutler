@@ -7,6 +7,11 @@ One file per level, keyed by skill name, holding only the settings you want to c
 
 Both files are read when the extension loads, so an edited file applies after `/reload` or a new session.
 
+`/skill-pro set` and `unset` edit the user file under a lock (`skill-pro.yml.lock`): a second
+session waits up to two seconds and then reports `another session is writing …; try again in a
+moment` instead of overwriting the first one, and a lock left behind by a crashed process is
+reclaimed after ten seconds. The project file is hand-edited only.
+
 ## Keys
 
 The file takes one top-level key, `skills`, mapping a skill name to its settings.
@@ -41,3 +46,12 @@ skills:
   grill-with-docs:
     language: zh
 ```
+
+## Usage log
+
+`$name` namings are appended to `~/.pi/agent/skillbutler-stats.jsonl`, one JSON object per line
+(`{"skill":"grill-with-docs","at":"2026-11-17T07:41:02.000Z","via":"dollar"}`). `$PI_CODING_AGENT_DIR`
+moves it with the agent directory. `skillbutler_status` summarises it; `/skill-pro reset` empties it
+and reports how many namings it dropped. A line the parser cannot read is skipped rather than
+failing the file, and a log that cannot be read at all leaves the inventory answer intact with a
+single `usage: unavailable (<reason>)` line.

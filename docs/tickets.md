@@ -81,8 +81,12 @@
 
 ## 已知 P2
 
-- 偏好写入是 last-write-wins，没有文件锁：两个会话同时 `set` 会丢一次写入。解锁条件：出现真实的并发写入投诉。
-- 使用日志无界增长，没有 reset 命令。解锁条件：日志体量影响到读取时间。
-- 单语句控制流统一带大括号，与仓库偏好（不带）不一致；Biome 不强制，暂不批量改写。
-- `$` 弹窗最多 50 项：一个根下可见 skill 超过 50 个时，尾部只能靠继续输入收窄。
-- `skillbutler_status` 读不到使用日志（权限错误）时如实报工具失败，不降级成「零次」，因为静默的零会误导判断。
+上一轮列出的五条已在 ADR-0010 关闭，没有遗留：
+
+| 原问题 | 处置 | 证据 |
+|---|---|---|
+| 偏好写入 last-write-wins，两个会话同时 `set` 会丢一次 | `withPreferencesLock` 独占 `<file>.lock`，2 秒超时报错、10 秒陈旧锁回收 | `src/preferences/lock.ts`、`test/unit/preference-lock.test.ts` |
+| 使用日志无界增长，没有 reset | `/skill-pro reset` 清空并报出丢弃条数 | `src/commands/skill-pro.ts`、`test/unit/command-report.test.ts` |
+| 单语句控制流带大括号，与仓库偏好不一致 | 20 个文件 24 处去括号 | `npm run lint` 通过 |
+| `$` 弹窗上限 50 项 | 提到 200 项（本机 90 个 skill） | `src/completion/provider.ts` |
+| 读不到使用日志时整个工具失败 | 只降级 usage 一行，库存答案保留 | `src/tools/status.ts`、`test/unit/status-tool.test.ts` |

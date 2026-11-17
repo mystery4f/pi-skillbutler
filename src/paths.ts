@@ -5,7 +5,7 @@
  * @author mystery4f <40482524+mystery4f@users.noreply.github.com>
  */
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { join, sep } from "node:path";
 
 /** Preference file name, user level; the project level sits at `.pi/skill-pro.yml`. */
 export const USER_PREFERENCE_FILE = "skill-pro.yml";
@@ -35,4 +35,12 @@ export function userPreferenceFile(env: NodeJS.ProcessEnv = process.env): string
 /** The project-level preference file for one project root. */
 export function projectPreferenceFile(projectRoot: string): string {
   return join(projectRoot, PROJECT_PREFERENCE_DIR, USER_PREFERENCE_FILE);
+}
+
+/** A path as the report shows it: the home directory becomes `~`. */
+export function displayPath(absolute: string): string {
+  const home = homedir();
+  if (absolute === home) return "~";
+  const prefix = home.endsWith(sep) ? home : `${home}${sep}`;
+  return absolute.startsWith(prefix) ? `~${absolute.slice(home.length)}` : absolute;
 }

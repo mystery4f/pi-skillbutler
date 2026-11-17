@@ -10,13 +10,17 @@
  */
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { type ManagedRootsOptions, managedRoots } from "./paths.js";
+import { createStatusTool } from "./tools/status.js";
 
 /** Footer chip key, command name and log prefix: one identity for the package. */
 export const SKILL_PRO_KEY = "skill-pro";
 export const SKILL_PRO_COMMAND = "skill-pro";
 export const LOG_PREFIX = "skill-pro";
 
-export interface ExtensionOptions extends ManagedRootsOptions {}
+export interface ExtensionOptions extends ManagedRootsOptions {
+  /** Managed roots; defaults to the two fixed ones. A test passes its own pair. */
+  readonly roots?: readonly string[];
+}
 
 /** What the entry hands back: the resolved roots and a way to unregister. */
 export interface SkillProController {
@@ -30,7 +34,8 @@ export function createExtension(
   pi: ExtensionAPI,
   options: ExtensionOptions = {},
 ): SkillProController {
-  const roots = managedRoots(options.env);
+  const roots = options.roots ?? managedRoots(options.env);
+  pi.registerTool(createStatusTool({ roots, env: options.env }));
   const disposers: Array<() => void> = [];
   disposers.push(
     pi.on("session_start", async (_event, ctx) => {

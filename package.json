@@ -1,0 +1,72 @@
+{
+  "name": "pi-skill-pro",
+  "version": "0.1.0",
+  "description": "Skill preferences and visibility for pi: one curated skill list, per-skill style, and $name path injection.",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "skills",
+    "skill-preferences",
+    "skill-visibility"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mystery4f/pi-skill-pro.git"
+  },
+  "homepage": "https://github.com/mystery4f/pi-skill-pro#readme",
+  "bugs": {
+    "url": "https://github.com/mystery4f/pi-skill-pro/issues"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "prepack": "npm run build",
+    "check": "tsc -p tsconfig.dev.json",
+    "lint": "biome check .",
+    "lint:fix": "biome check --fix .",
+    "format": "biome format --write .",
+    "test": "vitest run --passWithNoTests",
+    "test:unit": "vitest run --project unit --passWithNoTests",
+    "test:integration": "vitest run --project integration --passWithNoTests",
+    "test:watch": "vitest",
+    "verify": "npm run check && npm run lint && npm test"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*",
+    "typebox": "*"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.7",
+    "@earendil-works/pi-coding-agent": "^1.5.2",
+    "@earendil-works/pi-tui": "^1.5.2",
+    "@types/node": "^26.6.6",
+    "typebox": "^1.4.7",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}

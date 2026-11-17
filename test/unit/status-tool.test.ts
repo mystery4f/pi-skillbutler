@@ -1,5 +1,5 @@
 /**
- * `skill_pro_status` through the harness: the inventory answer, the per-skill
+ * `skillbutler_status` through the harness: the inventory answer, the per-skill
  * answer with its provenance, and the miss that lists the names that do exist.
  *
  * @author mystery4f <40482524+mystery4f@users.noreply.github.com>
@@ -38,7 +38,7 @@ afterAll(async () => {
   for (const dir of dirs) await removeDir(dir);
 });
 
-describe("skill_pro_status", () => {
+describe("skillbutler_status", () => {
   it("registers the tool with its paths in the description", () => {
     const tool = harness.tools.get(STATUS_TOOL);
     expect(tool).toBeDefined();

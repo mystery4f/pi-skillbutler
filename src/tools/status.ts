@@ -1,5 +1,5 @@
 /**
- * `skill_pro_status`: the model's read-only view of the inventory and the
+ * `skillbutler_status`: the model's read-only view of the inventory and the
  * preferences that shape it. One question — "what does pi-skillbutler see, and
  * why" — answered from the files, never from a cache the tool has to explain.
  *
@@ -20,7 +20,7 @@ import {
 import { type Inventory, scanSkills } from "../skills/inventory.js";
 
 /** Tool name: the plugin prefix, then the one verb. */
-export const STATUS_TOOL = "skill_pro_status";
+export const STATUS_TOOL = "skillbutler_status";
 
 /** Names listed in one answer before the list is clipped; the count stays exact. */
 export const INVENTORY_LINE_LIMIT = 120;

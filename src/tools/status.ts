@@ -1,6 +1,6 @@
 /**
  * `skill_pro_status`: the model's read-only view of the inventory and the
- * preferences that shape it. One question — "what does pi-skill-pro see, and
+ * preferences that shape it. One question — "what does pi-skillbutler see, and
  * why" — answered from the files, never from a cache the tool has to explain.
  *
  * @author mystery4f <40482524+mystery4f@users.noreply.github.com>
@@ -53,7 +53,7 @@ const StatusParameters = Type.Object({
 export function statusDescription(deps: StatusToolDeps): string {
   const env = deps.env ?? process.env;
   return [
-    "Read-only view of the skills pi-skill-pro manages: each skill's file, whether it is hidden, and the weight that orders it. Use it when the skill you expected is missing from the list, or to answer why one is not offered.",
+    "Read-only view of the skills pi-skillbutler manages: each skill's file, whether it is hidden, and the weight that orders it. Use it when the skill you expected is missing from the list, or to answer why one is not offered.",
     `Managed roots, scanned in this order: ${deps.roots.map((root) => `\`${displayPath(root)}\``).join(", ")}. A name found in both keeps the first and is reported as a duplicate.`,
     `Settings: \`${displayPath(userPreferenceFile(env))}\` overridden per key by \`.pi/skill-pro.yml\` in the working directory. Both are read when the extension loads, so an edited file applies after /reload or a new session.`,
   ].join("\n\n");

@@ -1,5 +1,5 @@
 {
-  "name": "pi-skill-pro",
+  "name": "pi-skillbutler",
   "version": "0.1.0",
   "description": "Skill preferences and visibility for pi: one curated skill list, per-skill style, and $name path injection.",
   "keywords": [
@@ -13,11 +13,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mystery4f/pi-skill-pro.git"
+    "url": "git+https://github.com/mystery4f/pi-skillbutler.git"
   },
-  "homepage": "https://github.com/mystery4f/pi-skill-pro#readme",
+  "homepage": "https://github.com/mystery4f/pi-skillbutler#readme",
   "bugs": {
-    "url": "https://github.com/mystery4f/pi-skill-pro/issues"
+    "url": "https://github.com/mystery4f/pi-skillbutler/issues"
   },
   "engines": {
     "node": ">=22.19.0"

@@ -1,4 +1,4 @@
-# pi-skill-pro
+# pi-skillbutler
 
 Skill preferences and visibility for pi: one curated skill list, a per-skill writing style, and
 `$name` path injection — the features that survived when `pi-context-broker` was being retired.
@@ -6,7 +6,7 @@ Skill preferences and visibility for pi: one curated skill list, a per-skill wri
 ## Install
 
 ```bash
-pi install npm:pi-skill-pro
+pi install npm:pi-skillbutler
 ```
 
 ## What it does

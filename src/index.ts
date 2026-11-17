@@ -1,5 +1,5 @@
 /**
- * pi-skill-pro — skill preferences and visibility for pi.
+ * pi-skillbutler — skill preferences and visibility for pi.
  *
  * The extension is a factory so a test can build one without a running pi: the
  * factory registers the session seams and hands back a controller. The seams

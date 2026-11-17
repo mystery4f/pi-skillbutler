@@ -6,8 +6,10 @@ Skill preferences and visibility for pi: one curated skill list, a per-skill wri
 ## Install
 
 ```bash
-pi install npm:pi-skillbutler
+pi install git:github.com/mystery4f/pi-skillbutler
 ```
+
+No npm package yet; the git source is the supported install.
 
 ## Usage
 

@@ -40,8 +40,7 @@ import { scanSkills } from "./skills/inventory.js";
 import { appendUsageEvent } from "./stats/store.js";
 import { createStatusTool } from "./tools/status.js";
 
-/** Footer chip key, command names and log prefix: one identity for the package. */
-export const STATUS_KEY = "skillbutler";
+/** Command names and log prefix: one identity for the package. */
 export { COMMAND_ALIAS, COMMAND_NAME };
 export const LOG_PREFIX = "skillbutler";
 /** The `via` value this package writes when the user names a skill with `$name`. */
@@ -139,7 +138,6 @@ export function createExtension(
       await reload();
       const hostSkills = parseHostSkills(ctx.getSystemPrompt());
       if (hostSkills.length > 0 && view !== undefined) view = { ...view, hostSkills };
-      ctx.ui.setStatus(STATUS_KEY, chip(view));
       ctx.ui.addAutocompleteProvider((current) =>
         createDollarProvider(current, {
           entries,
@@ -178,9 +176,7 @@ export function createExtension(
     }),
   );
   disposers.push(
-    pi.on("session_shutdown", (_event, ctx) => {
-      // The chip summarizes a session; the next one starts without it.
-      ctx.ui.setStatus(STATUS_KEY, undefined);
+    pi.on("session_shutdown", () => {
       view = undefined;
       named = new Set();
     }),
@@ -195,19 +191,6 @@ export function createExtension(
       for (const dispose of disposers.splice(0)) dispose();
     },
   };
-}
-
-/** The footer text: the bare name until something is configured, then the counts. */
-function chip(view: SessionView | undefined): string {
-  if (view === undefined) return STATUS_KEY;
-  if (view.error !== undefined) return `${STATUS_KEY} !`;
-  const total = view.inventory.skills.length;
-  const hidden = view.inventory.skills.filter(
-    (skill) => view.preferences.preferences.get(skill.name)?.hidden === true,
-  ).length;
-  return view.preferences.preferences.size === 0
-    ? STATUS_KEY
-    : `${STATUS_KEY} ${total - hidden}/${total}`;
 }
 
 function applyOverlay(

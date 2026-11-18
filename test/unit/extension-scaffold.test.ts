@@ -1,12 +1,11 @@
 /**
  * What the entry promises before any preference logic exists: it registers the
- * session seams, it writes the footer chip on session start, and `dispose` really
+ * session seams, it writes no footer chip on session start, and `dispose` really
  * unregisters what it registered.
  *
  * @author mystery4f <40482524+mystery4f@users.noreply.github.com>
  */
 import { describe, expect, it } from "vitest";
-import { STATUS_KEY } from "../../src/index.js";
 import { createHarness } from "../support/extension-harness.js";
 import { makeProject } from "../support/temp.js";
 
@@ -20,11 +19,11 @@ describe("extension entry", () => {
     project.cleanup();
   });
 
-  it("writes the footer chip on session start", async () => {
+  it("writes no footer chip on session start", async () => {
     const project = makeProject();
     const harness = createHarness({ options: project.options });
     await harness.fire("session_start");
-    expect(harness.statuses).toEqual([{ key: STATUS_KEY, text: STATUS_KEY }]);
+    expect(harness.statuses).toEqual([]);
     harness.dispose();
     project.cleanup();
   });

@@ -8,7 +8,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { STATUS_KEY } from "../../src/index.js";
 import { INVOCATION_CUSTOM_TYPE } from "../../src/invocation/inject.js";
 import { OVERVIEW_SECTION } from "../../src/preferences/overlay.js";
 import { createHarness } from "../support/extension-harness.js";
@@ -80,7 +79,7 @@ describe("before_agent_start", () => {
     await turn(harness, "hello", options);
     expect(options.skills).toBe(before);
     expect(options.sections[OVERVIEW_SECTION]).toBeUndefined();
-    expect(harness.statuses.at(-1)).toEqual({ key: STATUS_KEY, text: STATUS_KEY });
+    expect(harness.statuses).toEqual([]);
     harness.dispose();
     project.cleanup();
   });
@@ -117,7 +116,7 @@ describe("before_agent_start", () => {
     project.write("agent/skill-pro.yml", "skills:\n\talpha: broken\n");
     const harness = createHarness({ options: project.options });
     await harness.fire("session_start");
-    expect(harness.statuses.at(-1)).toEqual({ key: STATUS_KEY, text: `${STATUS_KEY} !` });
+    expect(harness.statuses).toEqual([]);
     expect(harness.controller.view()?.error).toContain("skill-pro.yml");
     expect(harness.controller.view()?.inventory.skills).toHaveLength(1);
     harness.dispose();
@@ -126,25 +125,25 @@ describe("before_agent_start", () => {
 });
 
 describe("session seams", () => {
-  it("clears the footer chip when the session ends", async () => {
+  it("forgets the session when it ends", async () => {
     const project = makeProject();
     const harness = createHarness({ options: project.options });
     await harness.fire("session_start");
     await harness.fire("session_shutdown");
-    expect(harness.statuses.at(-1)).toEqual({ key: STATUS_KEY, text: undefined });
+    expect(harness.statuses).toEqual([]);
     expect(harness.controller.view()).toBeUndefined();
     harness.dispose();
     project.cleanup();
   });
 
-  it("counts the visible skills in the chip once something is configured", async () => {
+  it("keeps the chip silent even once something is configured", async () => {
     const project = makeProject();
     project.skill("alpha");
     project.skill("beta");
     project.write("agent/skill-pro.yml", "skills:\n  alpha:\n    hidden: true\n");
     const harness = createHarness({ options: project.options });
     await harness.fire("session_start");
-    expect(harness.statuses.at(-1)).toEqual({ key: STATUS_KEY, text: `${STATUS_KEY} 1/2` });
+    expect(harness.statuses).toEqual([]);
     harness.dispose();
     project.cleanup();
   });

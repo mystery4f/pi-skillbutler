@@ -17,6 +17,8 @@ export interface InvocationScan {
   readonly known: readonly string[];
   /** Names nothing answers to, in the order the prompt mentions them. */
   readonly unknown: readonly string[];
+  /** Text the prompt put after a known name on the same line — that skill's input. */
+  readonly arguments: ReadonlyMap<string, string>;
 }
 
 /** Blank out fenced code blocks, keeping every line and column where it was. */
@@ -47,6 +49,7 @@ export function scanInvocations(
 ): InvocationScan {
   const known: string[] = [];
   const unknown: string[] = [];
+  const inputs = new Map<string, string>();
   const seen = new Set<string>();
   const masked = maskFencedCode(prompt);
   for (const match of masked.matchAll(TOKEN)) {
@@ -55,10 +58,24 @@ export function scanInvocations(
     if (name === undefined || at === undefined) continue;
     if (isEscaped(masked, at) || seen.has(name)) continue;
     seen.add(name);
-    if (resolves(name)) known.push(name);
-    else unknown.push(name);
+    if (!resolves(name)) {
+      unknown.push(name);
+      continue;
+    }
+    known.push(name);
+    const input = afterName(masked, at, match[0].length);
+    if (input !== "") inputs.set(name, input);
   }
-  return { known, unknown };
+  return { known, unknown, arguments: inputs };
+}
+
+/** Text after a name that opens its line: `$retro review sprint 12` inputs `review sprint 12`. */
+function afterName(text: string, at: number, length: number): string {
+  const lineStart = text.lastIndexOf("\n", at) + 1;
+  if (text.slice(lineStart, at).trim() !== "") return "";
+  const from = at + length;
+  const end = text.indexOf("\n", from);
+  return text.slice(from, end === -1 ? undefined : end).trim();
 }
 
 /** An odd number of backslashes right before the `$` means the user escaped it. */

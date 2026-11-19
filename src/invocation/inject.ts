@@ -42,6 +42,14 @@ export function buildInvocationText(
     const named = alreadyNamed.map((name) => `$${name}`).join(", ");
     lines.push(`Already named earlier this session, so the path is not repeated: ${named}.`);
   }
+  const inputs = scan.known.filter((name) => scan.arguments.get(name) !== undefined);
+  if (inputs.length > 0) {
+    if (lines.length > 0) lines.push("");
+    lines.push(
+      "Text after a name is that skill's input and stands in for `$ARGUMENTS` in its body:",
+    );
+    for (const name of inputs) lines.push(`- $${name}: ${scan.arguments.get(name)}`);
+  }
   if (scan.unknown.length > 0) {
     if (lines.length > 0) lines.push("");
     const quoted = scan.unknown.map((name) => `$${name}`).join(", ");

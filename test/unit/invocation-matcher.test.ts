@@ -15,18 +15,24 @@ describe("scanInvocations", () => {
     expect(scanInvocations("先 $retro，后 $grill-with-docs", knows)).toEqual({
       known: ["retro", "grill-with-docs"],
       unknown: [],
+      arguments: new Map(),
     });
   });
 
   it("counts an inline code mention and leaves a fenced block alone", () => {
     const prompt = "run `$retro` now\n```sh\necho $retro\n$grill-with-docs\n```\n";
-    expect(scanInvocations(prompt, knows)).toEqual({ known: ["retro"], unknown: [] });
+    expect(scanInvocations(prompt, knows)).toEqual({
+      known: ["retro"],
+      unknown: [],
+      arguments: new Map(),
+    });
   });
 
   it("leaves an escaped $ to the user", () => {
     expect(scanInvocations("costs \\$retro and $retro", knows)).toEqual({
       known: ["retro"],
       unknown: [],
+      arguments: new Map(),
     });
   });
 
@@ -38,7 +44,17 @@ describe("scanInvocations", () => {
     expect(scanInvocations("$nope and $retro", knows)).toEqual({
       known: ["retro"],
       unknown: ["nope"],
+      arguments: new Map(),
     });
+  });
+  it("takes the rest of its line as the skill's input", () => {
+    const scan = scanInvocations("$retro review sprint 12\n$grill-with-docs", knows);
+    expect(scan.arguments.get("retro")).toBe("review sprint 12");
+    expect(scan.arguments.has("grill-with-docs")).toBe(false);
+  });
+
+  it("ignores text after a name that sits inside a sentence", () => {
+    expect(scanInvocations("先 $retro，后 $grill-with-docs", knows).arguments.size).toBe(0);
   });
 });
 

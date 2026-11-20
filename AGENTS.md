@@ -8,8 +8,10 @@ pi loads from the git source; `dist/` only exists for the published package.
 - `npm run verify` — typecheck, lint and test in one pass. Every change goes through it; the
   pre-commit hook runs the same command.
 - `npm run lint:fix` — the only reliable biome entry here. `npx biome …` fails with
-  `could not determine executable to run` and leaves the files unchanged, so a formatting error
-  looks fixed while it is not.
+  `npx canceled due to missing packages` (it tries to install `eslint@10.15.0`) and leaves the files
+  unchanged, so a formatting error
+  looks fixed while it is not. `node_modules/.bin/biome check --fix .` works when the script cannot be
+  used.
 - `npm run build` — typecheck with the publishing tsconfig and write `dist/`.
 
 ## Layout

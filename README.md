@@ -11,6 +11,10 @@ pi install git:github.com/mystery4f/pi-skillbutler
 
 No npm package yet; the git source is the supported install.
 
+After an update that renames a command or a tool, `/reload` re-registers the extension. A file the
+extension imports indirectly keeps its ESM cache across `/reload`, so behaviour that still looks old
+needs a full pi restart.
+
 ## Usage
 
 Type `$name` anywhere in a prompt and the turn gets one line pointing at that skill's `SKILL.md`;

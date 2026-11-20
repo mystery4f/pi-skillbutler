@@ -17,7 +17,7 @@ import { parseConfigYaml } from "./yaml.js";
 
 /** Header of a file this package wrote; a hand-written file keeps its own head. */
 const WRITTEN_HEADER =
-  "# Written by /skill-pro. Comments and ordering are yours to restore; only the settings below are kept.";
+  "# Written by /skillbutler. Comments and ordering are yours to restore; only the settings below are kept.";
 
 export type SettingValue = boolean | number | string;
 

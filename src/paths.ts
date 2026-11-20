@@ -7,8 +7,8 @@
 import { homedir } from "node:os";
 import { join, sep } from "node:path";
 
-/** Preference file name, user level; the project level sits at `.pi/skill-pro.yml`. */
-export const USER_PREFERENCE_FILE = "skill-pro.yml";
+/** Preference file name, user level; the project level sits at `.pi/skillbutler.yml`. */
+export const USER_PREFERENCE_FILE = "skillbutler.yml";
 export const PROJECT_PREFERENCE_DIR = ".pi";
 /** Usage log file name, user level (ADR-0008); one JSON event per line. */
 export const USAGE_STATS_FILE = "skillbutler-stats.jsonl";

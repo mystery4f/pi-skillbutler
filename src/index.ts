@@ -14,7 +14,7 @@ import type {
   ExtensionAPI,
   NormalizedBuildSystemPromptOptions,
 } from "@earendil-works/pi-coding-agent";
-import { COMMAND_ALIAS, COMMAND_NAME, createCommandOptions } from "./commands/skill-pro.js";
+import { COMMAND_NAME, createCommandOptions } from "./commands/skillbutler.js";
 import {
   buildCompletionEntries,
   type CompletionEntry,
@@ -40,8 +40,8 @@ import { scanSkills } from "./skills/inventory.js";
 import { appendUsageEvent } from "./stats/store.js";
 import { createStatusTool } from "./tools/status.js";
 
-/** Command names and log prefix: one identity for the package. */
-export { COMMAND_ALIAS, COMMAND_NAME };
+/** Command name and log prefix: one identity for the package. */
+export { COMMAND_NAME };
 export const LOG_PREFIX = "skillbutler";
 /** The `via` value this package writes when the user names a skill with `$name`. */
 export const VIA_DOLLAR = "dollar";
@@ -129,7 +129,6 @@ export function createExtension(
     },
   });
   pi.registerCommand(COMMAND_NAME, command);
-  pi.registerCommand(COMMAND_ALIAS, command);
 
   const disposers: Array<() => void> = [];
   disposers.push(

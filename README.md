@@ -21,12 +21,12 @@ The `$` popup lists every skill: managed ones first by weight, then hidden ones 
 `[hidden]`), then skills pi loads from elsewhere (`[unmanaged]`). The description is the Chinese
 translation when `i18n.json` has one.
 
-`/skill-pro list`, `show <name>`, `why <name>`, `set <name> <key> <value>`, `unset <name> <key>`, `reset`
-— `/skillbutler` is an alias. Writes only ever touch the user file. The model gets one read-only
+`/skillbutler list`, `show <name>`, `why <name>`, `set <name> <key> <value>`, `unset <name> <key>`, `reset`
+— the command, named after the package with its `pi-` prefix dropped. Writes only ever touch the user file. The model gets one read-only
 tool, `skillbutler_status`, so it can answer "why is this skill missing?" without guessing.
 ## Configuration
 
-User level: `~/.pi/agent/skill-pro.yml`. Project level: `.pi/skill-pro.yml`, which overrides the
+User level: `~/.pi/agent/skillbutler.yml`. Project level: `.pi/skillbutler.yml`, which overrides the
 user level per skill.
 
 ## Scripts

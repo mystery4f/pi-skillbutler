@@ -15,7 +15,7 @@ import {
   withSetting,
 } from "../../src/preferences/writer.js";
 
-const FILE = "/home/u/.pi/agent/skill-pro.yml";
+const FILE = "/home/u/.pi/agent/skillbutler.yml";
 
 describe("parseSettingValue", () => {
   it("takes true and false for hidden", () => {
@@ -43,7 +43,7 @@ describe("parseSettingValue", () => {
 describe("withSetting", () => {
   it("writes a file this package owns, and reads back into the same map", () => {
     const text = withSetting(undefined, FILE, "alpha", "weight", 3);
-    expect(text.startsWith("# Written by /skill-pro.")).toBe(true);
+    expect(text.startsWith("# Written by /skillbutler.")).toBe(true);
     const parsed = parsePreferences(text, FILE);
     expect(parsed.get("alpha")?.weight).toBe(3);
   });

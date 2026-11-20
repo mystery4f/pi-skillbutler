@@ -63,7 +63,7 @@ describe("a session over real files", () => {
     const { project: built, harness } = setup();
     built.skill("alpha", { description: "first" });
     built.skill("beta", { description: "second" });
-    built.write("agent/skill-pro.yml", "skills:\n  alpha:\n    hidden: true\n");
+    built.write("agent/skillbutler.yml", "skills:\n  alpha:\n    hidden: true\n");
 
     await harness.fire("session_start", {});
     const options = promptOptions([fakeSkill("alpha"), fakeSkill("beta")]);
@@ -123,7 +123,7 @@ describe("a session over real files", () => {
   it("survives a broken preference file and names it", async () => {
     const { project: built, harness } = setup();
     built.skill("alpha");
-    const file = built.write("agent/skill-pro.yml", "skills:\n\talpha:\n    hidden: true\n");
+    const file = built.write("agent/skillbutler.yml", "skills:\n\talpha:\n    hidden: true\n");
 
     const view = await harness.controller.reload();
 

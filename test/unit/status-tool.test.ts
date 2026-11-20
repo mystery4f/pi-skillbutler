@@ -19,18 +19,18 @@ let dirs: string[] = [];
 let harness: Harness;
 
 beforeAll(async () => {
-  root = await tempDir("skill-pro-root-");
-  agent = await tempDir("skill-pro-agent-");
-  project = await tempDir("skill-pro-project-");
+  root = await tempDir("skillbutler-root-");
+  agent = await tempDir("skillbutler-agent-");
+  project = await tempDir("skillbutler-project-");
   dirs = [root, agent, project];
   await writeFileIn(root, "alpha/SKILL.md", "---\nname: alpha\ndescription: First skill.\n---\n");
   await writeFileIn(root, "beta/SKILL.md", "---\nname: beta\n---\n");
   await writeFileIn(
     agent,
-    "skill-pro.yml",
+    "skillbutler.yml",
     "skills:\n  alpha:\n    hidden: true\n    style: terse\n",
   );
-  await writeFileIn(project, ".pi/skill-pro.yml", "skills:\n  beta:\n    weight: 5\n");
+  await writeFileIn(project, ".pi/skillbutler.yml", "skills:\n  beta:\n    weight: 5\n");
   harness = createHarness({
     options: { roots: [root], env: { PI_CODING_AGENT_DIR: agent } },
   });
@@ -46,7 +46,7 @@ describe("skillbutler_status", () => {
     const tool = harness.tools.get(STATUS_TOOL);
     expect(tool).toBeDefined();
     expect(tool?.description).toContain("read when the extension loads");
-    expect(tool?.description).toContain("skill-pro.yml");
+    expect(tool?.description).toContain("skillbutler.yml");
   });
 
   it("lists the inventory with the two settings files and the hidden flag", async () => {
@@ -63,7 +63,7 @@ describe("skillbutler_status", () => {
     const text = firstText(result);
     expect(text).toContain("hidden: true");
     expect(text).toContain("style: terse");
-    expect(text).toContain("skill-pro.yml");
+    expect(text).toContain("skillbutler.yml");
   });
 
   it("lists the known names when the name is unknown", async () => {
@@ -81,8 +81,8 @@ function firstText(result: { content: readonly { type: string; text?: string }[]
 
 describe("skillbutler_status when the usage log cannot be read", () => {
   it("still answers the inventory and reports the log as unavailable", async () => {
-    const brokenRoot = await tempDir("skill-pro-root-broken-");
-    const brokenAgent = await tempDir("skill-pro-agent-broken-");
+    const brokenRoot = await tempDir("skillbutler-root-broken-");
+    const brokenAgent = await tempDir("skillbutler-agent-broken-");
     await writeFileIn(brokenRoot, "gamma/SKILL.md", "---\nname: gamma\n---\n");
     await mkdir(join(brokenAgent, USAGE_STATS_FILE), { recursive: true });
     const broken = createHarness({

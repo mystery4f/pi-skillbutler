@@ -20,7 +20,7 @@ import { removeDir, tempDir } from "../support/temp.js";
 let dir = "";
 
 beforeAll(async () => {
-  dir = await tempDir("skill-pro-stats-");
+  dir = await tempDir("skillbutler-stats-");
 });
 
 afterAll(async () => {
@@ -50,7 +50,7 @@ describe("parseUsageLine", () => {
 
 describe("appendUsageEvent and readUsageEvents", () => {
   it("round-trips events oldest first and creates the parent directory", async () => {
-    const file = join(dir, "nested", "skill-pro-stats.jsonl");
+    const file = join(dir, "nested", "skillbutler-stats.jsonl");
     await appendUsageEvent(file, { skill: "retro", at: "2026-11-17T00:00:01Z" });
     await appendUsageEvent(file, { skill: "grill", at: "2026-11-17T00:00:02Z", via: "dollar" });
     expect(await readUsageEvents(file)).toEqual([

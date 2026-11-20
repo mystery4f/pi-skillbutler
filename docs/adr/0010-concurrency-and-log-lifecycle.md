@@ -26,7 +26,7 @@ time pressure rather than on evidence:
   writer retries for 2 s and then fails with a message naming the file. A lock older than 10 s
   is treated as abandoned and reclaimed, so a crashed holder cannot wedge the file. No new
   dependency: `proper-lockfile` would buy a dependency for behaviour we already need to own.
-- **`/skill-pro reset` truncates the usage log** and reports how many namings it dropped. The
+- **`/skillbutler reset` truncates the usage log** and reports how many namings it dropped. The
   command surface stays human-only, which is what ADR-0003 promised for writes.
 - **An unreadable usage log degrades one line, not the tool.** The inventory answer and the
   per-skill answer still come back; the usage line reads
@@ -34,7 +34,7 @@ time pressure rather than on evidence:
   would be worse than the error: it reads as "never named".
 - **The popup shows up to 200 items**, chosen to exceed any realistic install (90 today) rather
   than to bound a list the query narrows anyway. The unknown-name hint and the
-  `/skill-pro` name hint move from 40 to 60.
+  `/skillbutler` name hint move from 40 to 60.
 - **Single-statement control flow drops its braces**, matching the repository convention.
 
 ## Consequences

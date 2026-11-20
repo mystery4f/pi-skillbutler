@@ -40,13 +40,13 @@ describe("managed roots", () => {
 describe("preference files", () => {
   it("puts the user level in the agent directory", () => {
     expect(userPreferenceFile({ PI_CODING_AGENT_DIR: "D:/agent-home" })).toBe(
-      join("D:/agent-home", "skill-pro.yml"),
+      join("D:/agent-home", "skillbutler.yml"),
     );
   });
 
   it("puts the project level under .pi", () => {
     expect(projectPreferenceFile("E:/work/demo")).toBe(
-      join("E:/work/demo", ".pi", "skill-pro.yml"),
+      join("E:/work/demo", ".pi", "skillbutler.yml"),
     );
   });
 });

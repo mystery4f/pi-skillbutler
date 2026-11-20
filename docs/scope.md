@@ -7,13 +7,13 @@
 | 能力 | 边界 |
 | --- | --- |
 | 托管根扫描 | 只扫 `~/.agents/skills` 与 `~/.pi/agent/skills`，不读配置；产出名称、描述、路径、是否模型可调用 |
-| 偏好读写 | 用户级 `~/.pi/agent/skill-pro.yml` 加项目级 `.pi/skill-pro.yml`，稀疏条目，键为 skill 名 |
+| 偏好读写 | 用户级 `~/.pi/agent/skillbutler.yml` 加项目级 `.pi/skillbutler.yml`，稀疏条目，键为 skill 名 |
 | 偏好字段 | `hidden`、`weight`、`language`、`style`，只写与默认不同的 |
 | 偏好层 | 每轮请求前改写系统提示的 skill 清单：过滤、排序、改写描述；不换整段 `systemPrompt` |
 | 总览 | 偏好生效时附一条限长文本，不逐条展开 |
 | `$name` 路径注入 | 只送 `SKILL.md` 路径加一句按需读取；不送正文；重复点名只回报"已点名"；手写提示与 prompt 模板正文用同一条匹配规则（ADR-0007） |
 | `$` 补全 | 列出全部可见 skill，未托管者标注；描述按补全译文查表（ADR-0006） |
-| 人类命令 | `/skill-pro list \| show \| set \| unset \| why` |
+| 人类命令 | `/skillbutler list \| show \| set \| unset \| why` |
 | 模型侧查询 | 一个只读工具 `skillbutler_status`，无写入口 |
 | 使用统计 | 按 skill 记点名次数与最近时间，单独持久化 |
 
@@ -47,7 +47,7 @@
 - 关掉插件，行为与原生 pi 完全一致；打开插件且没有任何偏好文件时，系统提示里的 skill 清单与原生逐字相同。
 - 给某个 skill 设 `hidden` 后，同一会话的下一轮系统提示不再出现它，`$` 补全里仍能看到它并被标注。
 - 写 `$name` 后本轮上下文出现该 skill 的 `SKILL.md` 路径，且不出现正文首句；同一分支再次点名同一 skill，只出现"已点名"；prompt 模板正文里的 `$name` 与亲手写同等生效，围栏代码块内不替换、行内代码内替换、同一 skill 只替换首次。
-- 用户级与项目级对同一 skill 给了不同值时，`/skill-pro why <name>` 逐字段说明最终值与来源层级。
+- 用户级与项目级对同一 skill 给了不同值时，`/skillbutler why <name>` 逐字段说明最终值与来源层级。
 - `$` 补全中，译文表有 `skill:<name>` 键的条目显示中文，无键的显示原文；译文文件不存在时全部原文且不报错。
 - 偏好文件写坏时插件不崩，给出一条能定位到文件名与字段的诊断。
 - 使用统计在重启后仍在，`skillbutler_status` 能返回计数与最近一次点名时间。

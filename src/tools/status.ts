@@ -65,7 +65,7 @@ export function statusDescription(deps: StatusToolDeps): string {
   return [
     "Read-only view of the skills pi-skillbutler manages: each skill's file, whether it is hidden, and the weight that orders it. Use it when the skill you expected is missing from the list, or to answer why one is not offered.",
     `Managed roots, scanned in this order: ${deps.roots.map((root) => `\`${displayPath(root)}\``).join(", ")}. A name found in both keeps the first and is reported as a duplicate.`,
-    `Settings: \`${displayPath(userPreferenceFile(env))}\` overridden per key by \`.pi/skill-pro.yml\` in the working directory. Both are read when the extension loads, so an edited file applies after /reload or a new session.`,
+    `Settings: \`${displayPath(userPreferenceFile(env))}\` overridden per key by \`.pi/skillbutler.yml\` in the working directory. Both are read when the extension loads, so an edited file applies after /reload or a new session.`,
   ].join("\n\n");
 }
 

@@ -15,8 +15,8 @@ let mine = "";
 let dirs: string[] = [];
 
 beforeAll(async () => {
-  shared = await tempDir("skill-pro-shared-");
-  mine = await tempDir("skill-pro-mine-");
+  shared = await tempDir("skillbutler-shared-");
+  mine = await tempDir("skillbutler-mine-");
   dirs = [shared, mine];
   await writeFileIn(
     shared,

@@ -1,6 +1,6 @@
 /**
  * One session's view of the inventory and its preferences. Rebuilt whenever a
- * file may have changed — a new session, or a `/skill-pro` write — and read by
+ * file may have changed — a new session, or a `/skillbutler` write — and read by
  * every consumer, so the prompt overlay, the popup and the report agree.
  *
  * @author mystery4f <40482524+mystery4f@users.noreply.github.com>

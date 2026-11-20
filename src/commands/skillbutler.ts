@@ -1,5 +1,5 @@
 /**
- * The human surface (ADR-0003, ADR-0009): `/skill-pro list|show|set|unset|why`.
+ * The human surface (ADR-0003, ADR-0009): `/skillbutler list|show|set|unset|why`.
  * Reports go into the transcript because they are worth re-reading; a write is
  * acknowledged with one line, since the file itself is the record.
  *
@@ -22,9 +22,8 @@ import type { SessionView } from "../session.js";
 import type { SkillRecord } from "../skills/inventory.js";
 import { readUsageEvents } from "../stats/store.js";
 
-/** Command names: the spec's `/skill-pro`, plus the package name as an alias. */
-export const COMMAND_NAME = "skill-pro";
-export const COMMAND_ALIAS = "skillbutler";
+/** Command name: the package name without its `pi` prefix; `/skillbutler` is the one way in. */
+export const COMMAND_NAME = "skillbutler";
 /** Custom message type the reports arrive as. */
 export const REPORT_CUSTOM_TYPE = "skillbutler-report";
 /** Marker for a skill the prompt never shows. */
@@ -105,14 +104,14 @@ export async function runCommand(
         const key = requireKey(rest[1]);
         const raw = rest.slice(2).join(" ");
         if (raw.length === 0)
-          throw new Error(`set needs a value: /skill-pro set ${name} ${key} <value>`);
+          throw new Error(`set needs a value: /skillbutler set ${name} ${key} <value>`);
         const value = parseSettingValue(key, raw, userFile, name);
         await withPreferencesLock(userFile, async () => {
           const next = withSetting(await readSource(userFile), userFile, name, key, value);
           await writeUserFile(userFile, next);
         });
         await deps.reload();
-        io.notify(`skill-pro: ${name}.${key} = ${String(value)} in ${displayPath(userFile)}`);
+        io.notify(`skillbutler: ${name}.${key} = ${String(value)} in ${displayPath(userFile)}`);
         return;
       }
       case "unset": {
@@ -123,25 +122,25 @@ export async function runCommand(
           await writeUserFile(userFile, next);
         });
         await deps.reload();
-        io.notify(`skill-pro: removed ${name}.${key} from ${displayPath(userFile)}`);
+        io.notify(`skillbutler: removed ${name}.${key} from ${displayPath(userFile)}`);
         return;
       }
       case "reset": {
         const events = await readUsageEvents(deps.statsFile);
         await writeFile(deps.statsFile, "", "utf8");
         io.notify(
-          `skill-pro: cleared ${events.length} namings from ${displayPath(deps.statsFile)}`,
+          `skillbutler: cleared ${events.length} namings from ${displayPath(deps.statsFile)}`,
         );
         return;
       }
       default:
         io.notify(
-          `skill-pro: unknown subcommand "${subcommand}"; try list, show, set, unset, why, reset`,
+          `skillbutler: unknown subcommand "${subcommand}"; try list, show, set, unset, why, reset`,
           "error",
         );
     }
   } catch (error) {
-    io.notify(`skill-pro: ${(error as Error).message}`, "error");
+    io.notify(`skillbutler: ${(error as Error).message}`, "error");
   }
 }
 
@@ -196,7 +195,7 @@ function renderList(view: SessionView, userFile: string): string {
     "",
     ...inventory.skills.map((skill) => renderSkillLine(skill, preferences.preferences)),
     "",
-    `Change a setting with: /skill-pro set <skill> <${SKILL_KEYS.join("|")}> <value>   (writes ${displayPath(
+    `Change a setting with: /skillbutler set <skill> <${SKILL_KEYS.join("|")}> <value>   (writes ${displayPath(
       userFile,
     )})`,
   ];
@@ -309,7 +308,7 @@ function knownNames(view: SessionView): string {
 
 function requireName(value: string | undefined, subcommand: string): string {
   if (value === undefined || value.length === 0)
-    throw new Error(`${subcommand} needs a skill name: /skill-pro ${subcommand} <name>`);
+    throw new Error(`${subcommand} needs a skill name: /skillbutler ${subcommand} <name>`);
   return value;
 }
 

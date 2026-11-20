@@ -1,22 +1,22 @@
 # GLOSSARY
 
-pi-skill-pro 的领域词汇。一个概念一个词；`避免` 行列出不要再用的说法。
+pi-skillbutler 的领域词汇。一个概念一个词；`避免` 行列出不要再用的说法。
 
 ## 托管根
 
-pi-skill-pro 亲自扫描的 skill 目录，固定两个：`~/.agents/skills`、`~/.pi/agent/skills`。
+pi-skillbutler 亲自扫描的 skill 目录，固定两个：`~/.agents/skills`、`~/.pi/agent/skills`。
 
 _避免_: skillRoots、来源目录、多根。
 
 ## 托管 skill
 
-位于某个托管根下、被 pi-skill-pro 扫描到的 skill。只有托管 skill 能带偏好。
+位于某个托管根下、被 pi-skillbutler 扫描到的 skill。只有托管 skill 能带偏好。
 
 _避免_: 本地 skill、自有 skill。
 
 ## 未托管 skill
 
-pi 仍会广播、但不由 pi-skill-pro 扫描的 skill（package 自带、项目 `.agents/skills`、`settings.skills` 额外路径）。偏好不作用于它们。
+pi 仍会广播、但不由 pi-skillbutler 扫描的 skill（package 自带、项目 `.agents/skills`、`settings.skills` 额外路径）。偏好不作用于它们。
 
 _避免_: 外部 skill、第三方 skill。
 

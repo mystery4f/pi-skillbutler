@@ -36,7 +36,7 @@ describe("before_agent_start", () => {
     const project = makeProject();
     project.skill("alpha");
     project.skill("beta");
-    project.write("agent/skill-pro.yml", "skills:\n  alpha:\n    hidden: true\n    weight: 7\n");
+    project.write("agent/skillbutler.yml", "skills:\n  alpha:\n    hidden: true\n    weight: 7\n");
     const harness = createHarness({ options: project.options });
     await harness.fire("session_start");
     const options = promptOptions([fakeSkill("alpha"), fakeSkill("beta")]);
@@ -113,11 +113,11 @@ describe("before_agent_start", () => {
   it("keeps the session when a preference file does not parse", async () => {
     const project = makeProject();
     project.skill("alpha");
-    project.write("agent/skill-pro.yml", "skills:\n\talpha: broken\n");
+    project.write("agent/skillbutler.yml", "skills:\n\talpha: broken\n");
     const harness = createHarness({ options: project.options });
     await harness.fire("session_start");
     expect(harness.statuses).toEqual([]);
-    expect(harness.controller.view()?.error).toContain("skill-pro.yml");
+    expect(harness.controller.view()?.error).toContain("skillbutler.yml");
     expect(harness.controller.view()?.inventory.skills).toHaveLength(1);
     harness.dispose();
     project.cleanup();
@@ -140,7 +140,7 @@ describe("session seams", () => {
     const project = makeProject();
     project.skill("alpha");
     project.skill("beta");
-    project.write("agent/skill-pro.yml", "skills:\n  alpha:\n    hidden: true\n");
+    project.write("agent/skillbutler.yml", "skills:\n  alpha:\n    hidden: true\n");
     const harness = createHarness({ options: project.options });
     await harness.fire("session_start");
     expect(harness.statuses).toEqual([]);

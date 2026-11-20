@@ -86,7 +86,7 @@
 | 原问题 | 处置 | 证据 |
 |---|---|---|
 | 偏好写入 last-write-wins，两个会话同时 `set` 会丢一次 | `withPreferencesLock` 独占 `<file>.lock`，2 秒超时报错、10 秒陈旧锁回收 | `src/preferences/lock.ts`、`test/unit/preference-lock.test.ts` |
-| 使用日志无界增长，没有 reset | `/skill-pro reset` 清空并报出丢弃条数 | `src/commands/skill-pro.ts`、`test/unit/command-report.test.ts` |
+| 使用日志无界增长，没有 reset | `/skillbutler reset` 清空并报出丢弃条数 | `src/commands/skillbutler.ts`、`test/unit/command-report.test.ts` |
 | 单语句控制流带大括号，与仓库偏好不一致 | 20 个文件 24 处去括号 | `npm run lint` 通过 |
 | `$` 弹窗上限 50 项 | 提到 200 项（本机 90 个 skill） | `src/completion/provider.ts` |
 | 读不到使用日志时整个工具失败 | 只降级 usage 一行，库存答案保留 | `src/tools/status.ts`、`test/unit/status-tool.test.ts` |

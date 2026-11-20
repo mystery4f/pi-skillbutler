@@ -14,7 +14,7 @@ import { removeDir, tempDir } from "../support/temp.js";
 let dir = "";
 
 beforeAll(async () => {
-  dir = await tempDir("skill-pro-lock-");
+  dir = await tempDir("skillbutler-lock-");
 });
 
 afterAll(async () => {

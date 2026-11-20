@@ -28,12 +28,12 @@ matcher already runs.
   project. Rejected.
 - SQLite or another store dependency — the data is a flat count list; a dependency
   buys nothing. Rejected.
-- Inside `skill-pro.yml` — forbidden by the spec: preferences are hand-edited,
+- Inside `skillbutler.yml` — forbidden by the spec: preferences are hand-edited,
   events are machine-written. Rejected.
 
 ## Consequences
 
 - Concurrent sessions append safely: one `O_APPEND` write per line.
 - The file grows without bound; v1 accepts it (one short line per use), and a
-  reset can be added to `/skill-pro` later.
+  reset can be added to `/skillbutler` later.
 - A crash may truncate the last line; the loader skips it, losing at most one event.

@@ -7,8 +7,8 @@
 import { describe, expect, it } from "vitest";
 import { mergePreferences, parsePreferences } from "../../src/preferences/preferences.js";
 
-const USER = "C:/agent/skill-pro.yml";
-const PROJECT = "E:/work/demo/.pi/skill-pro.yml";
+const USER = "C:/agent/skillbutler.yml";
+const PROJECT = "E:/work/demo/.pi/skillbutler.yml";
 
 const sample = `# full-line comments are allowed
 skills:

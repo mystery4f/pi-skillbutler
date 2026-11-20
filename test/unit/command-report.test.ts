@@ -10,14 +10,14 @@ import { describe, expect, it } from "vitest";
 import { createHarness } from "../support/extension-harness.js";
 import { makeProject } from "../support/temp.js";
 
-describe("/skill-pro through the registered command", () => {
+describe("/skillbutler through the registered command", () => {
   it("lists the managed skills and where the settings live", async () => {
     const project = makeProject();
     project.skill("alpha");
     project.skill("beta");
-    project.write("agent/skill-pro.yml", "skills:\n  alpha:\n    hidden: true\n    weight: 2\n");
+    project.write("agent/skillbutler.yml", "skills:\n  alpha:\n    hidden: true\n    weight: 2\n");
     const harness = createHarness({ options: project.options });
-    await harness.runCommand("skill-pro", "list");
+    await harness.runCommand("skillbutler", "list");
     const report = harness.messages[0]?.content ?? "";
     expect(report).toContain("2 managed skills, 1 visible, 1 hidden");
     expect(report).toMatch(/present\s+2 skills/);
@@ -42,9 +42,9 @@ describe("/skill-pro through the registered command", () => {
   it("unsets a value and drops the entry with it", async () => {
     const project = makeProject();
     project.skill("alpha");
-    project.write("agent/skill-pro.yml", "skills:\n  alpha:\n    weight: 4\n");
+    project.write("agent/skillbutler.yml", "skills:\n  alpha:\n    weight: 4\n");
     const harness = createHarness({ options: project.options });
-    await harness.runCommand("skill-pro", "unset alpha weight");
+    await harness.runCommand("skillbutler", "unset alpha weight");
     expect(await readFile(project.userPreferences, "utf8")).toContain("skills: {}");
     expect(harness.controller.view()?.preferences.preferences.has("alpha")).toBe(false);
     harness.dispose();
@@ -55,14 +55,14 @@ describe("/skill-pro through the registered command", () => {
     const project = makeProject();
     project.skill("alpha");
     project.write(
-      "project/.pi/skill-pro.yml",
+      "project/.pi/skillbutler.yml",
       "skills:\n  alpha:\n    hidden: true\n    style: terse\n",
     );
     const harness = createHarness({ options: project.options });
-    await harness.runCommand("skill-pro", "why alpha");
+    await harness.runCommand("skillbutler", "why alpha");
     const report = harness.messages[0]?.content ?? "";
     expect(report).toContain("is hidden");
-    expect(report).toContain("skill-pro.yml");
+    expect(report).toContain("skillbutler.yml");
     harness.dispose();
     project.cleanup();
   });
@@ -71,7 +71,7 @@ describe("/skill-pro through the registered command", () => {
     const project = makeProject();
     project.skill("alpha");
     const harness = createHarness({ options: project.options });
-    await harness.runCommand("skill-pro", "set alpha weight heavy");
+    await harness.runCommand("skillbutler", "set alpha weight heavy");
     expect(harness.notifications.at(-1)).toMatchObject({ level: "error" });
     expect(harness.notifications.at(-1)?.message).toContain(
       '"weight" must be a number, got "heavy"',
@@ -83,7 +83,7 @@ describe("/skill-pro through the registered command", () => {
   it("names the subcommands it knows when given another one", async () => {
     const project = makeProject();
     const harness = createHarness({ options: project.options });
-    await harness.runCommand("skill-pro", "delete alpha");
+    await harness.runCommand("skillbutler", "delete alpha");
     expect(harness.notifications.at(-1)).toMatchObject({ level: "error" });
     expect(harness.notifications.at(-1)?.message).toContain("try list, show, set, unset, why");
     harness.dispose();
@@ -94,8 +94,8 @@ describe("/skill-pro through the registered command", () => {
     const project = makeProject();
     project.skill("alpha");
     const harness = createHarness({ options: project.options });
-    await harness.runCommand("skill-pro", "list");
-    const command = harness.commands.get("skill-pro");
+    await harness.runCommand("skillbutler", "list");
+    const command = harness.commands.get("skillbutler");
     const complete = async (prefix: string): Promise<string[]> =>
       (await command?.getArgumentCompletions?.(prefix))?.map((item) => item.value) ?? [];
     expect(await complete("sh")).toEqual(["show"]);
@@ -106,7 +106,7 @@ describe("/skill-pro through the registered command", () => {
   });
 });
 
-describe("/skill-pro reset", () => {
+describe("/skillbutler reset", () => {
   it("clears the usage log and says how many namings it dropped", async () => {
     const project = makeProject();
     project.skill("alpha");
@@ -120,7 +120,7 @@ describe("/skill-pro reset", () => {
       "utf8",
     );
     const harness = createHarness({ options: project.options });
-    await harness.runCommand("skill-pro", "reset");
+    await harness.runCommand("skillbutler", "reset");
     expect(harness.notifications.at(-1)?.message).toContain("cleared 2 namings");
     expect(await readFile(project.stats, "utf8")).toBe("");
     harness.dispose();
@@ -131,7 +131,7 @@ describe("/skill-pro reset", () => {
     const project = makeProject();
     project.skill("alpha");
     const harness = createHarness({ options: project.options });
-    const command = harness.commands.get("skill-pro");
+    const command = harness.commands.get("skillbutler");
     expect(await command?.getArgumentCompletions?.("reset ")).toEqual([]);
     harness.dispose();
     project.cleanup();

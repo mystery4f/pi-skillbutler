@@ -60,8 +60,8 @@ export function makeProject(): TestProject {
   const root = realpathSync(mkdtempSync(join(tmpdir(), "skillbutler-")));
   const userRoot = join(root, "home", ".agents", "skills");
   const agentRoot = join(root, "agent", "skills");
-  const userPreferences = join(root, "agent", "skill-pro.yml");
-  const projectPreferences = join(root, "project", ".pi", "skill-pro.yml");
+  const userPreferences = join(root, "agent", "skillbutler.yml");
+  const projectPreferences = join(root, "project", ".pi", "skillbutler.yml");
   const translations = join(root, "agent", "i18n.json");
   const stats = join(root, "agent", "skillbutler-stats.jsonl");
   const cwd = join(root, "project");

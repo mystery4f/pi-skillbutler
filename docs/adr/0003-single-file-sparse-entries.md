@@ -6,8 +6,8 @@
 
 ## 决定
 
-- 用户级：agent 目录下一份 `skill-pro.yml`，键是 skill 名，值是稀疏条目，只写与默认不同的字段。
-- 项目级：`.pi/skill-pro.yml`，同结构，按键与字段覆盖用户级。
+- 用户级：agent 目录下一份 `skillbutler.yml`，键是 skill 名，值是稀疏条目，只写与默认不同的字段。
+- 项目级：`.pi/skillbutler.yml`，同结构，按键与字段覆盖用户级。
 - 偏好只写在 YAML 里，不回写 `SKILL.md` 的 frontmatter。
 
 ## 被否决的选项

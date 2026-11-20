@@ -31,7 +31,7 @@ describe("extension entry", () => {
   it("installs one command under both names", () => {
     const project = makeProject();
     const harness = createHarness({ options: project.options });
-    expect([...harness.commands.keys()].sort()).toEqual(["skill-pro", "skillbutler"]);
+    expect([...harness.commands.keys()].sort()).toEqual(["skillbutler"]);
     harness.dispose();
     project.cleanup();
   });

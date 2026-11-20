@@ -37,6 +37,7 @@ import { loadPreferences } from "./preferences/preferences.js";
 import type { SessionView } from "./session.js";
 import { parseHostSkills } from "./skills/host.js";
 import { scanSkills } from "./skills/inventory.js";
+import { watchRoots } from "./skills/watcher.js";
 import { appendUsageEvent } from "./stats/store.js";
 import { createStatusTool } from "./tools/status.js";
 
@@ -59,6 +60,8 @@ export interface ExtensionOptions extends ManagedRootsOptions {
   readonly cwd?: string;
   /** Character budget for the overview section. */
   readonly overviewLimit?: number;
+  /** Watch debounce; the tests shrink it to make the refreshes land in milliseconds. */
+  readonly watchDebounceMs?: number;
 }
 
 /** What the entry hands back: the resolved roots, the current view and a way out. */
@@ -111,6 +114,9 @@ export function createExtension(
     }
     return view;
   };
+  const watcher = watchRoots(roots, () => void reload(), {
+    debounceMs: options.watchDebounceMs,
+  });
 
   const entries = (): readonly CompletionEntry[] =>
     view === undefined
@@ -149,7 +155,8 @@ export function createExtension(
   disposers.push(
     pi.on("before_agent_start", async (event) => {
       if (event.messageType !== "user") return;
-      let current = view ?? (await reload());
+      let current = view;
+      if (current === undefined || !watcher.accessible) current = await reload();
       const hostSkills = hostSkillsOf(event.systemPromptOptions);
       if (hostSkills.length > 0) {
         // The prompt is the authority on what pi loaded; the roots only say what
@@ -187,6 +194,7 @@ export function createExtension(
     reload,
     entries,
     dispose() {
+      watcher.dispose();
       for (const dispose of disposers.splice(0)) dispose();
     },
   };

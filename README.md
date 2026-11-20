@@ -21,9 +21,15 @@ The `$` popup lists every skill: managed ones first by weight, then hidden ones 
 `[hidden]`), then skills pi loads from elsewhere (`[unmanaged]`). The description is the Chinese
 translation when `i18n.json` has one.
 
+The two managed roots are watched, so a skill installed or removed while the session runs shows up
+within a moment: `$name` resolves it and the popup offers it, with no `/reload`. Editing a skill's
+frontmatter name or its body is deliberately not watched.
+
 `/skillbutler list`, `show <name>`, `why <name>`, `set <name> <key> <value>`, `unset <name> <key>`, `reset`
-— the command, named after the package with its `pi-` prefix dropped. Writes only ever touch the user file. The model gets one read-only
-tool, `skillbutler_status`, so it can answer "why is this skill missing?" without guessing.
+— the command, named after the package with its `pi-` prefix dropped. Writes only ever touch the user
+file. The model gets one read-only tool, `skillbutler_status`, so it can answer "why is this skill
+missing?" without guessing.
+
 ## Configuration
 
 User level: `~/.pi/agent/skillbutler.yml`. Project level: `.pi/skillbutler.yml`, which overrides the

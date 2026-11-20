@@ -83,6 +83,8 @@ export interface Harness {
 
 export interface HarnessOptions {
   readonly options?: ExtensionOptions;
+  /** Shrink the watch debounce in the watch tests. */
+  readonly watchDebounceMs?: number;
   /** What `getSystemPrompt()` answers; empty by default. */
   readonly systemPrompt?: string;
 }
@@ -171,7 +173,10 @@ export function createHarness(harnessOptions: HarnessOptions = {}): Harness {
     },
   } as unknown as ExtensionAPI;
 
-  const controller = createExtension(pi, harnessOptions.options ?? {});
+  const controller = createExtension(pi, {
+    ...(harnessOptions.options ?? {}),
+    watchDebounceMs: harnessOptions.watchDebounceMs,
+  });
 
   return {
     pi,

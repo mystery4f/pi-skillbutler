@@ -14,6 +14,13 @@ pi loads from the git source; `dist/` only exists for the published package.
   used.
 - `npm run build` — typecheck with the publishing tsconfig and write `dist/`.
 
+## Install
+
+- pi clones this repo as a git plugin and installs it with `npm install --omit=dev`, which still
+  runs `prepare` while every devDependency is absent. `prepare` therefore runs
+  `scripts/prepare.mjs`, which installs the husky hooks when husky is present and exits quietly when
+  it is not; a bare `husky` or `husky || true` there fails the whole plugin install on Windows.
+
 ## Layout
 
 - `src/skills/inventory.ts` — scan the two managed roots into records.
